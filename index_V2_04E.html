@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shumai-Gosh! — Rewards Passport V2.04E</title>
+<title>Shumai-Gosh! — Rewards Passport V2.05A</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -3261,45 +3261,77 @@ body {
 
 
 <!-- ================================================================
-     SCRIPT  — V2.04A (Multi-Device Backend Sync)
+     FIREBASE SDK  — V2.05A (compat build — works with inline onclick handlers)
      ================================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 /* ================================================================
-   V2.04A — ARCHITECTURE
-   Backend: window.storage (shared=true) — cross-device persistent KV store
+   V2.05A — ARCHITECTURE
+   Backend: Firebase Realtime Database — real cross-device persistent store
    Cache:   localStorage — offline fallback + local session
 
    COLLECTIONS:
-     customers:{customerId}  → customer record JSON
-     passport:{customerId}   → passport record JSON
-     activity:{customerId}   → activity events array JSON
-     meta:id_seq             → integer counter
+     customers/{customerId}  → customer record JSON
+     passport/{customerId}   → passport record JSON
+     activity/{customerId}   → activity events array JSON
+     meta/id_seq             → integer counter
 
    SYNC RULES:
-     Every write → backend first, then local cache update
-     Every login  → pull from backend (latest-write-wins by updatedAt)
+     Every write → Firebase first, then local cache update
+     Every login  → pull from Firebase (latest-write-wins by updatedAt)
      Offline      → serve local cache, show Offline Mode bar
 
-   V2.04A ADDITIONS:
-     customer.qrCode         → PNG data URL, generated once per customer
-     ensureQR(customerId)    → called on registration + every login/boot
-     _generateAndStoreQR()   → renders via qrcodejs → stores data URL
-     renderProfileQR()       → displays QR in Profile view
+   V2.05A FIXES:
+     Bug #1 — QR signature algo mismatch (algo field now embedded in payload)
+     Bug #2 — window.storage replaced with Firebase Realtime Database
    ================================================================ */
 
-/* ── Backend wrapper ── */
+firebase.initializeApp({
+  apiKey:            "AIzaSyAkK4KLS93gwdalrRWPnFFSEuA5iQ2cvPk",
+  authDomain:        "shumai-gosh.firebaseapp.com",
+  databaseURL:       "https://shumai-gosh-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "shumai-gosh",
+  storageBucket:     "shumai-gosh.firebasestorage.app",
+  messagingSenderId: "62206596519",
+  appId:             "1:62206596519:web:dbfcc1d3a164ea18af5282"
+});
+
+const _fbDb = firebase.database();
+
+/* ── Convert colon-key to Firebase-safe path  ──────────────────
+   Our keys: "customers:SG-000001"  →  Firebase path: "customers/SG-000001"
+   Firebase forbids: . # $ [ ] in keys, so we sanitise the ID part. ── */
+function _fbPath(key) {
+  const colonIdx = key.indexOf(':');
+  if (colonIdx === -1) return key.replace(/[.#$[\]]/g, '_');
+  const collection = key.slice(0, colonIdx);
+  const id         = key.slice(colonIdx + 1).replace(/[.#$[\]]/g, '_');
+  return collection + '/' + id;
+}
+
+/* ── Backend wrapper — same interface as before ── */
 const SG_BACKEND = {
   async get(key) {
-    try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; }
-    catch { return null; }
+    try {
+      const snap = await _fbDb.ref(_fbPath(key)).once('value');
+      return snap.exists() ? snap.val() : null;
+    } catch { return null; }
   },
   async set(key, value) {
-    try { await window.storage.set(key, JSON.stringify(value), true); return true; }
-    catch { return false; }
+    try {
+      await _fbDb.ref(_fbPath(key)).set(value);
+      return true;
+    } catch { return false; }
   },
   async list(prefix) {
-    try { const r = await window.storage.list(prefix, true); return r ? r.keys : []; }
-    catch { return []; }
+    try {
+      /* prefix looks like "customers:" — we query the collection node */
+      const collection = prefix.replace(/:$/, '');
+      const snap = await _fbDb.ref(collection).once('value');
+      if (!snap.exists()) return [];
+      return Object.keys(snap.val()).map(k => collection + ':' + k);
+    } catch { return []; }
   }
 };
 
@@ -3312,8 +3344,10 @@ function _setOfflineMode(v) {
   if (bar) bar.classList.toggle('is-visible', v);
 }
 async function _checkBackend() {
-  try { await window.storage.list('meta:', true); _setOfflineMode(false); return true; }
-  catch { _setOfflineMode(true); return false; }
+  try {
+    await _fbDb.ref('meta/ping').once('value');
+    _setOfflineMode(false); return true;
+  } catch { _setOfflineMode(true); return false; }
 }
 
 /* ================================================================
@@ -4862,21 +4896,27 @@ function _renderQRToDataUrl(payload, callback) {
 async function _buildSignedQRPayload(customer) {
   const passportNumber = customer.passportNumber ||
     ('PASS-' + customer.customerId.replace('SG-', ''));
+
+  /* V2.05A: detect which signing path will be used and embed it
+     so the staff portal always verifies with the matching algorithm */
+  const algoAvailable = !!(window.crypto && window.crypto.subtle);
+  const algo = algoAvailable ? 'hmac' : 'djb2';
+
   const signature = await _signQRPayload(customer.customerId, passportNumber);
   if (!signature) return null;
   return JSON.stringify({
     customerId:     customer.customerId,
     passportNumber: passportNumber,
     signature:      signature,
+    algo:           algo,
     issuedAt:       new Date().toISOString()
   });
 }
 
 /* ── Check whether a stored qrCode has a signed payload ── */
-/* We render the QR to a canvas to read back the text — instead we check
-   the stored qrPayload field which we now co-store alongside the image. */
 function _qrIsSigned(customer) {
-  return !!(customer.qrPayload && customer.qrPayload.signature);
+  /* V2.05A: also require algo field — old QRs without it get regenerated */
+  return !!(customer.qrPayload && customer.qrPayload.signature && customer.qrPayload.algo);
 }
 
 /* ── Generate QR and persist it to customer record ── */
