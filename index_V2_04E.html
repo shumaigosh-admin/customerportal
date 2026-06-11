@@ -3633,6 +3633,8 @@ async function restoreSession(customerId) {
       renderDashQR(customerId);
     }
   });
+  /* V2.05B: attach real-time listener so dashboard updates when staff awards a stamp */
+  startRealtimeListener(customerId);
   return customer;
 }
 
@@ -3666,6 +3668,73 @@ async function boot() {
   }
 }
 document.addEventListener('DOMContentLoaded',boot);
+
+/* ================================================================
+   V2.05B — REAL-TIME STAMP LISTENER
+   Subscribes to the customer's Firebase record using .on('value')
+   so the dashboard updates live when staff awards a stamp —
+   without the customer needing to refresh or log out.
+   ================================================================ */
+
+let _rtListener     = null;
+let _rtCustomerId   = null;
+let _rtInitialSkip  = true;
+
+function startRealtimeListener(customerId) {
+  stopRealtimeListener();
+  if (!customerId) return;
+  _rtCustomerId  = customerId;
+  _rtInitialSkip = true;
+  try {
+    const ref = _fbDb.ref('customers/' + customerId.replace(/[.#$[\]]/g, '_'));
+    const handler = ref.on('value', function(snap) {
+      if (!snap.exists()) return;
+      if (_rtInitialSkip) { _rtInitialSkip = false; return; }
+      const remote = snap.val();
+      if (!remote || remote.customerId !== _rtCustomerId) return;
+      const cached = findById(_rtCustomerId);
+      if (cached &&
+          remote.stamps         === cached.stamps &&
+          remote.rewardsClaimed === cached.rewardsClaimed &&
+          remote.rewardStatus   === cached.rewardStatus) return;
+      const all = loadCustomers();
+      const idx = all.findIndex(c => c.customerId === _rtCustomerId);
+      if (idx >= 0) { all[idx] = { ...all[idx], ...remote }; }
+      else          { all.push(remote); }
+      _cacheSet(CACHE_CUSTOMERS, all);
+      const dash = document.getElementById('viewDashboard');
+      if (dash && dash.classList.contains('is-active')) {
+        populateDashboard(all[idx] || remote);
+        _showStampUpdateToast();
+      }
+    });
+    _rtListener = { ref, handler };
+  } catch (e) {
+    console.warn('[V2.05B] Real-time listener failed to attach', e);
+  }
+}
+
+function stopRealtimeListener() {
+  if (_rtListener) {
+    try { _rtListener.ref.off('value', _rtListener.handler); } catch {}
+    _rtListener   = null;
+    _rtCustomerId = null;
+  }
+}
+
+let _stampToastTimer = null;
+function _showStampUpdateToast() {
+  const toast  = document.getElementById('sgAutosaveToast');
+  const iconEl = document.getElementById('sgAutosaveIcon');
+  const textEl = document.getElementById('sgAutosaveText');
+  if (!toast || !iconEl || !textEl) return;
+  if (_stampToastTimer) { clearTimeout(_stampToastTimer); toast.classList.remove('is-visible'); toast.offsetHeight; }
+  toast.classList.remove('sg-autosave-toast--error');
+  iconEl.textContent = '\ud83e\udd5f';
+  textEl.textContent = 'Stamp awarded \u2014 passport updated!';
+  toast.classList.add('is-visible');
+  _stampToastTimer = setTimeout(() => { toast.classList.remove('is-visible'); _stampToastTimer = null; }, 2800);
+}
 
 /* ================================================================
    SPA VIEW ROUTER
@@ -3725,7 +3794,7 @@ async function openDashboard() {
    ================================================================ */
 function showLogoutModal()  { document.getElementById('sgLogoutOverlay').classList.add('is-visible'); }
 function closeLogoutModal() { document.getElementById('sgLogoutOverlay').classList.remove('is-visible'); }
-function confirmLogout() { clearSession(); closeLogoutModal(); showView('viewLanding'); }
+function confirmLogout() { stopRealtimeListener(); clearSession(); closeLogoutModal(); showView('viewLanding'); }
 document.getElementById('sgLogoutOverlay').addEventListener('click',e=>{ if(e.target===document.getElementById('sgLogoutOverlay'))closeLogoutModal(); });
 
 /* ================================================================
