@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shumai-Gosh! — Rewards Passport V2.10G</title>
+<title>Shumai-Gosh! — Rewards Passport V2.11H</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <!-- V2.04A: QR Code generator library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- V2.11D: DOM-to-canvas image export library (Share Card image export only) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 
 /* ============================================================
@@ -63,6 +65,698 @@ body {
 }
 
 
+
+/* ============================================================
+   V2.11A — SHARE CARD PREVIEW
+   Preview-only modal. No export / download / sharing.
+   ============================================================ */
+
+.sg-sharecard-overlay {
+  position: fixed; inset: 0;
+  background: rgba(74,33,18,0.6);
+  backdrop-filter: blur(10px);
+  z-index: 250;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.sg-sharecard-overlay.is-visible { opacity: 1; pointer-events: all; }
+
+.sg-sharecard-modal {
+  width: 100%; max-width: 360px;
+  background: #fff;
+  border-radius: var(--sg-radius-lg); overflow: hidden;
+  box-shadow: 0 40px 100px rgba(74,33,18,0.35), 0 12px 40px rgba(224,85,128,0.3);
+  transform: scale(0.88) translateY(28px);
+  transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
+  max-height: 90dvh; overflow-y: auto;
+}
+.sg-sharecard-overlay.is-visible .sg-sharecard-modal {
+  transform: scale(1) translateY(0);
+}
+
+/* ── Awning stripe ── */
+.sg-sharecard-modal__awning {
+  height: 10px; flex-shrink: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--sg-pink-deep) 0px, var(--sg-pink-deep) 18px,
+    rgba(255,240,245,0.9) 18px, rgba(255,240,245,0.9) 36px
+  );
+}
+
+/* ── Top bar (title + close) ── */
+.sg-sharecard-modal__topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 0;
+}
+.sg-sharecard-modal__title {
+  font-family: var(--sg-font-display); font-size: 18px;
+  color: var(--sg-pink-deep); line-height: 1;
+}
+.sg-sharecard-modal__close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(242,132,158,0.12);
+  border: 1.5px solid rgba(242,132,158,0.28);
+  color: var(--sg-pink-deep); font-size: 14px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.sg-sharecard-modal__close:hover { background: rgba(242,132,158,0.22); transform: scale(1.08); }
+.sg-sharecard-modal__close:active { transform: scale(0.95); }
+
+/* ── Achievement Card (the visual card inside modal) ── */
+.sg-sharecard-card {
+  margin: 14px 18px 18px;
+  background: linear-gradient(145deg, #FFF0F5 0%, #FFE4EE 55%, #FFDCE8 100%);
+  border: 2px solid rgba(242,132,158,0.3);
+  border-radius: var(--sg-radius-md);
+  padding: 20px 18px 18px;
+  position: relative; overflow: hidden;
+  animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+}
+/* Subtle dot pattern overlay */
+.sg-sharecard-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(242,132,158,0.1) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+}
+
+/* ── Brand header inside card ── */
+.sg-sharecard-card__brand {
+  text-align: center; margin-bottom: 16px; position: relative; z-index: 1;
+}
+.sg-sharecard-card__brand-name {
+  font-family: var(--sg-font-display); font-size: 20px;
+  color: var(--sg-pink-deep); line-height: 1;
+  text-shadow: 2px 2px 0 rgba(224,85,128,0.18);
+}
+.sg-sharecard-card__brand-name .brown { color: var(--sg-brown); }
+.sg-sharecard-card__brand-sub {
+  font-size: 9px; font-weight: 800; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--sg-text-soft); margin-top: 3px;
+}
+
+/* ── Photos row ── */
+.sg-sharecard-card__photos {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; margin-bottom: 16px; position: relative; z-index: 1;
+}
+.sg-sharecard-card__photo-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.sg-sharecard-card__photo {
+  width: 76px; height: 76px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.9);
+  box-shadow: 0 4px 16px rgba(224,85,128,0.28), 0 0 0 2px rgba(242,132,158,0.22);
+  background: linear-gradient(145deg, #FFE8F0, #FFF0F8);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+}
+.sg-sharecard-card__photo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.sg-sharecard-card__photo-label {
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--sg-text-soft);
+}
+/* Photo connector line */
+.sg-sharecard-card__photo-connector {
+  width: 28px; height: 2px; flex-shrink: 0;
+  background: linear-gradient(90deg, rgba(242,132,158,0.3), rgba(242,132,158,0.6), rgba(242,132,158,0.3));
+  border-radius: 2px;
+}
+
+/* ── Customer identity row ── */
+.sg-sharecard-card__identity {
+  text-align: center; margin-bottom: 14px; position: relative; z-index: 1;
+}
+.sg-sharecard-card__name {
+  font-family: var(--sg-font-display); font-size: 22px;
+  color: var(--sg-brown); line-height: 1.1;
+  margin-bottom: 3px;
+}
+.sg-sharecard-card__passport {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--sg-pink-deep); opacity: 0.65;
+}
+
+/* ── Divider ── */
+.sg-sharecard-card__divider {
+  height: 1.5px; margin: 0 0 14px;
+  background: linear-gradient(90deg, transparent, rgba(242,132,158,0.4), transparent);
+  position: relative; z-index: 1;
+}
+
+/* ── Stats grid ── */
+.sg-sharecard-card__stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; position: relative; z-index: 1;
+}
+.sg-sharecard-card__stat {
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(242,132,158,0.22);
+  border-radius: var(--sg-radius-sm);
+  padding: 10px 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  backdrop-filter: blur(6px);
+}
+.sg-sharecard-card__stat-icon { font-size: 18px; line-height: 1; }
+.sg-sharecard-card__stat-value {
+  font-family: var(--sg-font-display); font-size: 20px;
+  color: var(--sg-brown); line-height: 1;
+}
+.sg-sharecard-card__stat-label {
+  font-size: 9px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--sg-text-soft); text-align: center;
+}
+
+/* ── Stamps mini-strip ── */
+.sg-sharecard-card__stamps {
+  display: flex; align-items: center; justify-content: center;
+  gap: 5px; margin-top: 12px; position: relative; z-index: 1;
+}
+.sg-sharecard-card__stamp-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px dashed rgba(242,132,158,0.45);
+  background: rgba(255,240,248,0.9);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.sg-sharecard-card__stamp-dot--filled {
+  border: 2px solid rgba(224,85,128,0.6);
+  background: linear-gradient(145deg, #FF9DBD, #E05580);
+  font-size: 9px; color: #fff;
+}
+.sg-sharecard-card__stamp-reward {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid rgba(212,160,0,0.7);
+  background: linear-gradient(145deg, #FFFBE8, #FFD700);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+/* ── Preview-only notice ── */
+.sg-sharecard-notice {
+  margin: 0 18px 16px;
+  padding: 8px 12px;
+  background: rgba(255,245,240,0.9);
+  border: 1.5px solid rgba(242,132,158,0.2);
+  border-radius: var(--sg-radius-sm);
+  font-size: 10.5px; font-weight: 700;
+  color: var(--sg-text-soft); text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.sg-sharecard-card__id {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 9px; font-weight: 800; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(224,85,128,0.5);
+  background: rgba(242,132,158,0.08);
+  border: 1px solid rgba(242,132,158,0.2);
+  border-radius: var(--sg-radius-pill);
+  padding: 3px 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Modal action footer ── */
+.sg-sharecard-modal__actions {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 0 18px 20px;
+}
+
+.sg-sharecard-modal__btn-close {
+  width: 100%; height: 50px;
+  font-family: var(--sg-font-display); font-size: 18px; color: #fff;
+  background: linear-gradient(135deg, var(--sg-pink-deep), var(--sg-pink));
+  border: none; border-radius: var(--sg-radius-md); cursor: pointer;
+  box-shadow: 0 6px 22px rgba(224,85,128,0.4), inset 0 1px 0 rgba(255,255,255,0.22);
+  position: relative; overflow: hidden;
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease;
+}
+.sg-sharecard-modal__btn-close::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 55%);
+  pointer-events: none;
+}
+.sg-sharecard-modal__btn-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(224,85,128,0.48), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.sg-sharecard-modal__btn-close:active { transform: translateY(1px); }
+
+.sg-sharecard-modal__btn-coming-soon {
+  width: 100%; height: 44px;
+  font-family: var(--sg-font-body); font-size: 13px; font-weight: 800;
+  color: var(--sg-text-soft);
+  background: rgba(255,255,255,0.55);
+  border: 1.5px solid rgba(242,132,158,0.2);
+  border-radius: var(--sg-radius-md); cursor: default;
+  letter-spacing: 0.04em;
+  transition: none;
+}
+
+/* ── Share Achievement button in dashboard ── */
+.sg-share-achievement-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 50px;
+  margin-top: 20px;
+  font-family: var(--sg-font-display); font-size: 17px; color: var(--sg-pink-deep);
+  background: rgba(255,255,255,0.8);
+  border: 2px solid rgba(242,132,158,0.38);
+  border-radius: var(--sg-radius-md); cursor: pointer;
+  box-shadow: 0 4px 18px rgba(224,85,128,0.14), inset 0 1px 0 rgba(255,255,255,0.9);
+  transition: background 0.18s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
+  animation: pop-in 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.35s both;
+}
+.sg-share-achievement-btn:hover {
+  background: rgba(255,255,255,0.98);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(224,85,128,0.2), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.sg-share-achievement-btn:active { transform: scale(0.97); }
+
+/* ============================================================
+   V2.11D — IMAGE EXPORT ENGINE
+   Converts the Share Card into a PNG/JPG image.
+   Generates an in-memory preview image only.
+   No download. No sharing.
+   ============================================================ */
+.sg-imgexport {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  margin: 0 18px 16px;
+}
+
+/* Primary trigger button (reveals format picker) */
+.sg-imgexport-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--sg-font-body); font-size: 13px; font-weight: 800;
+  color: var(--sg-pink-deep);
+  background: rgba(255,255,255,0.88);
+  border: 2px solid rgba(224,85,128,0.32);
+  border-radius: var(--sg-radius-pill);
+  padding: 10px 22px; cursor: pointer;
+  box-shadow: 0 3px 12px rgba(224,85,128,0.14);
+  transition: background 0.15s ease, transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease;
+  letter-spacing: 0.02em;
+}
+.sg-imgexport-btn:hover {
+  background: rgba(255,255,255,0.98);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(224,85,128,0.22);
+}
+.sg-imgexport-btn:active { transform: scale(0.97); }
+.sg-imgexport-btn__icon { font-size: 15px; line-height: 1; }
+.sg-imgexport-btn[aria-expanded="true"] {
+  background: rgba(255,255,255,0.98);
+  box-shadow: 0 6px 20px rgba(224,85,128,0.22);
+}
+
+/* Format picker row — hidden until trigger button tapped */
+.sg-imgexport-picker {
+  display: flex; gap: 10px; align-items: center;
+  opacity: 0; transform: translateY(-8px); pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  height: 0; overflow: hidden;
+}
+.sg-imgexport-picker.is-visible {
+  opacity: 1; transform: translateY(0); pointer-events: all;
+  height: auto; overflow: visible;
+}
+.sg-imgexport-picker__label {
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--sg-text-soft);
+  white-space: nowrap;
+}
+.sg-imgexport-format-btn {
+  height: 40px; padding: 0 20px; min-width: 72px;
+  font-family: var(--sg-font-display); font-size: 15px; letter-spacing: 0.04em;
+  color: #fff;
+  border: none; border-radius: var(--sg-radius-md); cursor: pointer;
+  box-shadow: 0 4px 14px rgba(224,85,128,0.38), inset 0 1px 0 rgba(255,255,255,0.25);
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease, opacity 0.15s ease;
+  position: relative; overflow: hidden;
+}
+.sg-imgexport-format-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 55%);
+  pointer-events: none;
+}
+.sg-imgexport-format-btn--png {
+  background: linear-gradient(135deg, var(--sg-pink-deep), var(--sg-pink));
+}
+.sg-imgexport-format-btn--jpg {
+  background: linear-gradient(135deg, var(--sg-brown-mid), var(--sg-brown));
+}
+.sg-imgexport-format-btn:hover  { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 22px rgba(224,85,128,0.45); }
+.sg-imgexport-format-btn:active { transform: scale(0.96); }
+.sg-imgexport-format-btn.is-loading {
+  opacity: 0.65; pointer-events: none; cursor: default;
+}
+
+/* Status line (generating / done / error) */
+.sg-imgexport-status {
+  min-height: 14px;
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sg-text-soft); text-align: center;
+}
+
+/* Generated image preview — display only, no save/share controls */
+.sg-imgexport-preview {
+  display: none; flex-direction: column; align-items: center; gap: 6px;
+  width: 100%; margin-top: 2px;
+}
+.sg-imgexport-preview.is-visible { display: flex; }
+.sg-imgexport-preview__frame {
+  width: 100%;
+  background: repeating-conic-gradient(rgba(74,33,18,0.06) 0% 25%, transparent 0% 50%) 50% / 16px 16px;
+  border: 1.5px dashed rgba(242,132,158,0.35);
+  border-radius: var(--sg-radius-md);
+  padding: 10px;
+  display: flex; justify-content: center;
+}
+.sg-imgexport-preview__img {
+  max-width: 100%; max-height: 260px;
+  border-radius: var(--sg-radius-sm);
+  box-shadow: 0 6px 20px rgba(224,85,128,0.18);
+  display: block;
+}
+.sg-imgexport-preview__caption {
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--sg-text-soft); text-align: center;
+}
+
+/* ============================================================
+   V2.11E — DOWNLOAD ACHIEVEMENT CARD
+   Download-only controls rendered below the Export Engine preview.
+   No modifications to Export Engine, Share Card, Rewards, or Passport.
+   ============================================================ */
+
+/* Download action row — appears below the generated preview */
+.sg-imgdl {
+  display: none; flex-direction: column; align-items: center; gap: 10px;
+  width: 100%; margin-top: 4px;
+}
+.sg-imgdl.is-visible { display: flex; }
+
+/* Row label */
+.sg-imgdl__label {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--sg-text-soft); text-align: center;
+}
+
+/* Button row */
+.sg-imgdl__row {
+  display: flex; gap: 10px; align-items: center; justify-content: center;
+  width: 100%;
+}
+
+/* Individual download button */
+.sg-imgdl__btn {
+  flex: 1; max-width: 140px; height: 44px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  font-family: var(--sg-font-display); font-size: 15px; letter-spacing: 0.04em;
+  color: #fff;
+  border: none; border-radius: var(--sg-radius-md); cursor: pointer;
+  box-shadow: 0 4px 16px rgba(224,85,128,0.32), inset 0 1px 0 rgba(255,255,255,0.22);
+  position: relative; overflow: hidden;
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease, opacity 0.15s ease;
+}
+.sg-imgdl__btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 55%);
+  pointer-events: none;
+}
+.sg-imgdl__btn--png {
+  background: linear-gradient(135deg, var(--sg-pink-deep), var(--sg-pink));
+}
+.sg-imgdl__btn--jpg {
+  background: linear-gradient(135deg, var(--sg-brown-mid), var(--sg-brown));
+}
+.sg-imgdl__btn:hover  { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 24px rgba(224,85,128,0.42); }
+.sg-imgdl__btn:active { transform: scale(0.96); }
+.sg-imgdl__btn.is-saving { opacity: 0.65; pointer-events: none; cursor: default; }
+.sg-imgdl__btn__icon { font-size: 14px; line-height: 1; }
+
+/* Inline save-status feedback (shown below buttons) */
+.sg-imgdl__status {
+  min-height: 14px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--sg-text-soft); text-align: center;
+}
+
+/* ============================================================
+   V2.11F — NATIVE SHARE API
+   Share button and feedback rendered below the Download row.
+   No modifications to Share Card, Export Engine, Rewards, or Passport.
+   ============================================================ */
+
+/* Outer wrapper — hidden until a preview is generated */
+.sg-nativeshare {
+  display: none; flex-direction: column; align-items: center; gap: 10px;
+  width: 100%; margin-top: 2px;
+}
+.sg-nativeshare.is-visible { display: flex; }
+
+/* Divider line separating Download row from Share row */
+.sg-nativeshare__divider {
+  width: 100%; height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(242,132,158,0.28), transparent);
+  border: none;
+}
+
+/* Share trigger button */
+.sg-nativeshare__btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 50px;
+  font-family: var(--sg-font-display); font-size: 18px; color: #fff;
+  background: linear-gradient(135deg, #5C6BC0, #7E57C2);
+  border: none; border-radius: var(--sg-radius-md); cursor: pointer;
+  box-shadow: 0 6px 22px rgba(94,92,230,0.38), inset 0 1px 0 rgba(255,255,255,0.22);
+  position: relative; overflow: hidden;
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease, opacity 0.15s ease;
+  letter-spacing: 0.01em;
+}
+.sg-nativeshare__btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 55%);
+  pointer-events: none;
+}
+.sg-nativeshare__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(94,92,230,0.46), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.sg-nativeshare__btn:active { transform: scale(0.97); }
+.sg-nativeshare__btn.is-sharing { opacity: 0.65; pointer-events: none; cursor: default; }
+.sg-nativeshare__btn__icon { font-size: 18px; line-height: 1; }
+
+/* Feedback / unsupported notice */
+.sg-nativeshare__status {
+  min-height: 14px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--sg-text-soft); text-align: center;
+}
+.sg-nativeshare__status--unsupported {
+  color: var(--sg-error);
+  background: var(--sg-error-bg);
+  border: 1.5px solid var(--sg-error-border);
+  border-radius: var(--sg-radius-sm);
+  padding: 7px 12px;
+  font-size: 10.5px; letter-spacing: 0.04em;
+  text-transform: none; font-weight: 700;
+}
+
+/* ============================================================
+   V2.11G — DYNAMIC ACHIEVEMENT TYPES
+   Achievement-specific visual theming applied to the Share Card.
+   Four types: stampEarned · rewardUnlocked · rewardClaimed · passportCompleted
+   No modifications to Sharing, Export, QR, or Rewards Logic.
+   ============================================================ */
+
+/* ── Achievement badge pill (sits above brand header inside card) ── */
+.sg-sharecard-card__achievement-badge {
+  display: none;
+  align-items: center; justify-content: center; gap: 5px;
+  padding: 5px 14px;
+  border-radius: var(--sg-radius-pill);
+  font-family: var(--sg-font-body); font-size: 10px; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 10px;
+  position: relative; z-index: 1;
+  animation: pop-in 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.05s both;
+}
+.sg-sharecard-card__achievement-badge.is-visible { display: inline-flex; }
+.sg-sharecard-card__achievement-badge__icon { font-size: 13px; line-height: 1; }
+
+/* ── Achievement headline + sub-headline ── */
+.sg-sharecard-card__achievement-headline {
+  display: none;
+  text-align: center; margin-bottom: 12px; position: relative; z-index: 1;
+  animation: pop-in 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+}
+.sg-sharecard-card__achievement-headline.is-visible { display: block; }
+
+.sg-sharecard-card__achievement-title {
+  font-family: var(--sg-font-display); font-size: 17px; line-height: 1.15;
+  margin-bottom: 3px;
+}
+.sg-sharecard-card__achievement-sub {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--sg-text-soft); line-height: 1.4;
+}
+
+/* ── Per-type badge colour tokens ── */
+
+/* stampEarned — pink/rose */
+.sg-sharecard-card--stamp-earned .sg-sharecard-card__achievement-badge {
+  background: linear-gradient(135deg, rgba(242,132,158,0.18), rgba(224,85,128,0.1));
+  border: 1.5px solid rgba(224,85,128,0.4);
+  color: var(--sg-pink-deep);
+}
+.sg-sharecard-card--stamp-earned .sg-sharecard-card__achievement-title {
+  color: var(--sg-pink-deep);
+}
+
+/* rewardUnlocked — gold/amber */
+.sg-sharecard-card--reward-unlocked .sg-sharecard-card__achievement-badge {
+  background: linear-gradient(135deg, rgba(255,220,50,0.22), rgba(255,180,0,0.12));
+  border: 1.5px solid rgba(212,160,0,0.5);
+  color: #996600;
+}
+.sg-sharecard-card--reward-unlocked .sg-sharecard-card__achievement-title { color: #885500; }
+.sg-sharecard-card--reward-unlocked {
+  background: linear-gradient(145deg, #FFFDF0 0%, #FFF6CC 55%, #FFE88A 100%);
+  border-color: rgba(212,160,0,0.28);
+}
+.sg-sharecard-card--reward-unlocked::before {
+  background-image: radial-gradient(circle, rgba(212,160,0,0.1) 1px, transparent 1px);
+}
+
+/* rewardClaimed — green/emerald */
+.sg-sharecard-card--reward-claimed .sg-sharecard-card__achievement-badge {
+  background: linear-gradient(135deg, rgba(28,140,94,0.14), rgba(28,140,94,0.07));
+  border: 1.5px solid rgba(28,140,94,0.38);
+  color: var(--sg-success);
+}
+.sg-sharecard-card--reward-claimed .sg-sharecard-card__achievement-title { color: var(--sg-success); }
+.sg-sharecard-card--reward-claimed {
+  background: linear-gradient(145deg, #F0FBF6 0%, #D8F5E8 55%, #B8EDD4 100%);
+  border-color: rgba(28,140,94,0.25);
+}
+.sg-sharecard-card--reward-claimed::before {
+  background-image: radial-gradient(circle, rgba(28,140,94,0.08) 1px, transparent 1px);
+}
+
+/* passportCompleted — purple/indigo */
+.sg-sharecard-card--passport-completed .sg-sharecard-card__achievement-badge {
+  background: linear-gradient(135deg, rgba(94,92,230,0.16), rgba(126,87,194,0.1));
+  border: 1.5px solid rgba(94,92,230,0.42);
+  color: #4A3AB5;
+}
+.sg-sharecard-card--passport-completed .sg-sharecard-card__achievement-title { color: #4A3AB5; }
+.sg-sharecard-card--passport-completed {
+  background: linear-gradient(145deg, #F4F0FF 0%, #E8E0FF 55%, #D4C8FF 100%);
+  border-color: rgba(94,92,230,0.22);
+}
+.sg-sharecard-card--passport-completed::before {
+  background-image: radial-gradient(circle, rgba(94,92,230,0.08) 1px, transparent 1px);
+}
+
+/* ── Highlighted stamp strip for stampEarned — pulse newest dot ── */
+.sg-sharecard-card--stamp-earned .sg-sharecard-card__stamp-dot--latest {
+  box-shadow: 0 0 0 3px rgba(224,85,128,0.35), 0 0 12px rgba(224,85,128,0.5);
+  animation: sg-stamp-pulse 1.2s ease-in-out infinite;
+}
+@keyframes sg-stamp-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(224,85,128,0.35), 0 0 12px rgba(224,85,128,0.4); }
+  50%       { box-shadow: 0 0 0 5px rgba(224,85,128,0.55), 0 0 20px rgba(224,85,128,0.65); }
+}
+
+/* ── Reward slot burst for rewardUnlocked ── */
+.sg-sharecard-card--reward-unlocked .sg-sharecard-card__stamp-reward {
+  animation: sg-reward-burst 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+}
+@keyframes sg-reward-burst {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.25); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ============================================================
+   V2.11H — SOCIAL PLATFORM SHORTCUTS
+   Quick-access buttons that attempt to open Facebook, Messenger,
+   Instagram, or TikTok directly. If the platform app is
+   unavailable, falls back to the existing Native Share API
+   (V2.11F) — invoked, not modified.
+   No modifications to Share Card, Export, Native Share, Rewards,
+   or Passport.
+   ============================================================ */
+
+.sg-socialshare {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  width: 100%; margin-top: 4px;
+}
+
+.sg-socialshare__divider {
+  width: 100%; height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(242,132,158,0.28), transparent);
+  border: none;
+}
+
+.sg-socialshare__label {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--sg-text-soft); text-align: center;
+}
+
+.sg-socialshare__row {
+  display: flex; gap: 14px; align-items: flex-start; justify-content: center;
+  width: 100%;
+}
+
+.sg-socialshare__btn {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--sg-font-body); color: var(--sg-text-mid);
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), opacity 0.15s ease;
+}
+.sg-socialshare__btn:hover { transform: translateY(-2px); }
+.sg-socialshare__btn:active { transform: scale(0.94); }
+.sg-socialshare__btn.is-opening { opacity: 0.6; pointer-events: none; cursor: default; }
+
+.sg-socialshare__btn__icon {
+  width: 46px; height: 46px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #fff;
+  box-shadow: 0 4px 14px rgba(74,33,18,0.18), inset 0 1px 0 rgba(255,255,255,0.25);
+  position: relative; overflow: hidden;
+}
+.sg-socialshare__btn__icon::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 55%);
+  pointer-events: none;
+}
+.sg-socialshare__btn--facebook  .sg-socialshare__btn__icon { background: linear-gradient(135deg, #1877F2, #4D9CFF); }
+.sg-socialshare__btn--messenger .sg-socialshare__btn__icon { background: linear-gradient(135deg, #00B2FF, #006AFF); }
+.sg-socialshare__btn--instagram .sg-socialshare__btn__icon { background: linear-gradient(135deg, #F58529 0%, #DD2A7B 45%, #8134AF 75%, #515BD4 100%); }
+.sg-socialshare__btn--tiktok    .sg-socialshare__btn__icon { background: linear-gradient(135deg, #000000, #4A4A4A); }
+
+.sg-socialshare__btn__label {
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--sg-text-soft);
+}
+
+.sg-socialshare__status {
+  min-height: 14px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--sg-text-soft); text-align: center;
+}
 
 /* ============================================================
    V2.08D — CUSTOMER NOTIFICATION INDICATORS
@@ -3374,6 +4068,14 @@ body {
     <span aria-hidden="true">✅</span>
     <span>Selfie Uploaded Successfully</span>
   </div>
+
+  <!-- V2.11G: Share Achievement Button — now typed -->
+  <button class="sg-share-achievement-btn" type="button"
+    onclick="openShareCardPreviewWithType('stampEarned')"
+    aria-label="Preview your achievement card">
+    <span aria-hidden="true">🏅</span>
+    Share Achievement
+  </button>
 
   <div class="sg-dash-footer">
     <p class="sg-dash-footer__tagline">✦ Shumai-Gosh! Rewards ✦</p>
@@ -7589,6 +8291,995 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+/* ================================================================
+   V2.11B — SHARE CARD PREVIEW: LIVE DATA BINDING
+   Replaces V2.11A placeholder population with fully-resolved
+   live customer data for all seven bound fields:
+     customerName · customerId · passportNumber
+     currentStamps · rewardsClaimed · profilePhoto · selfiePhoto
+   Binding strategy:
+     1. Resolve merged customer record from local cache (instant).
+     2. Populate and open the modal immediately — no blocking wait.
+     3. Fire pullFromBackend() in the background; if fresher data
+        arrives while the modal is still visible, re-populate all
+        fields silently so the user always sees the latest values.
+   No writes. No exports. No sharing. Read-only.
+   ================================================================ */
+
+/**
+ * openShareCardPreview()
+ * Entry point. Resolves customer, binds all fields, opens modal,
+ * then fires a non-blocking background refresh.
+ */
+function openShareCardPreview() {
+  const sessionId = getSession();
+  if (!sessionId) { showView('viewLogin'); return; }
+
+  /* ── Resolve merged customer record from local cache ── */
+  const customer = mergePassportIntoCustomer(sessionId) || findById(sessionId);
+  if (!customer) { showView('viewLogin'); return; }
+
+  const overlay = document.getElementById('sgShareCardOverlay');
+  if (!overlay) return;
+
+  /* ── Bind all fields from cached data ── */
+  _shareCardBind(customer);
+
+  /* ── Show modal immediately (no blocking wait) ── */
+  overlay.classList.add('is-visible');
+  overlay.setAttribute('aria-hidden', 'false');
+
+  /* ── Focus close button for accessibility ── */
+  setTimeout(function() {
+    const closeBtn = overlay.querySelector('.sg-sharecard-modal__close');
+    if (closeBtn) closeBtn.focus();
+  }, 120);
+
+  /* ── Background refresh: pull latest from Firebase, re-bind if modal still open ── */
+  pullFromBackend(sessionId).then(function(refreshed) {
+    if (!refreshed) return;
+    /* Re-check overlay visibility before writing to DOM */
+    const stillOpen = overlay.classList.contains('is-visible');
+    if (!stillOpen) return;
+    /* Resolve freshest merged record after backend pull */
+    const fresh = mergePassportIntoCustomer(sessionId) || findById(sessionId);
+    if (fresh) _shareCardBind(fresh);
+  }).catch(function() { /* silent — offline or network error */ });
+}
+
+/**
+ * closeShareCardPreview()
+ * Hides the Share Card Preview modal.
+ */
+function closeShareCardPreview() {
+  const overlay = document.getElementById('sgShareCardOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('is-visible');
+  overlay.setAttribute('aria-hidden', 'true');
+}
+
+/**
+ * _shareCardBind(customer)
+ * Single binding function for all seven live data fields.
+ * Safe to call more than once (idempotent DOM writes).
+ *
+ * Bound fields:
+ *   customerName    → #sgShareCardName
+ *   customerId      → #sgShareCardId
+ *   passportNumber  → #sgShareCardPassport
+ *   currentStamps   → #sgShareCardStamps  + stamp strip
+ *   rewardsClaimed  → #sgShareCardRewards + stamp strip
+ *   profilePhoto    → #sgShareCardPhotos  (via _shareCardPopulatePhotos)
+ *   selfiePhoto     → #sgShareCardPhotos  (via _shareCardPopulatePhotos)
+ */
+function _shareCardBind(customer) {
+  /* ── customerName ── */
+  const nameEl = document.getElementById('sgShareCardName');
+  if (nameEl) nameEl.textContent = customer.fullName || '—';
+
+  /* ── customerId ── */
+  const idEl = document.getElementById('sgShareCardId');
+  if (idEl) idEl.textContent = customer.customerId || '—';
+
+  /* ── passportNumber ── */
+  const passEl = document.getElementById('sgShareCardPassport');
+  if (passEl) passEl.textContent =
+    customer.passportNumber || ('PASS-' + (customer.customerId || '').replace('SG-', ''));
+
+  /* ── currentStamps ── */
+  const stamps  = customer.stamps || 0;
+  const stampsEl = document.getElementById('sgShareCardStamps');
+  if (stampsEl) stampsEl.textContent = stamps;
+
+  /* ── rewardsClaimed ── */
+  const claimed = customer.rewardsClaimed || 0;
+  const rewardsEl = document.getElementById('sgShareCardRewards');
+  if (rewardsEl) rewardsEl.textContent = claimed;
+
+  /* ── profilePhoto + selfiePhoto ── */
+  _shareCardPopulatePhotos(customer);
+
+  /* ── Stamp strip — current cycle, using both stamps + claimed ── */
+  _shareCardPopulateStampStrip(stamps, claimed);
+}
+
+/**
+ * _shareCardPopulatePhotos(customer)
+ * Builds the photos row inside the card.
+ * Always shows Profile Photo slot.
+ * Shows Selfie Photo slot only if customer.selfiePhoto exists.
+ *
+ * Bound fields: profilePhoto, selfiePhoto
+ */
+function _shareCardPopulatePhotos(customer) {
+  const photosEl = document.getElementById('sgShareCardPhotos');
+  if (!photosEl) return;
+
+  const hasSelfie = !!(customer.selfiePhoto);
+
+  /* ── profilePhoto ── */
+  let profileHtml;
+  if (customer.profilePhoto) {
+    profileHtml =
+      '<div class="sg-sharecard-card__photo">' +
+        '<img src="' + customer.profilePhoto + '" alt="Profile photo">' +
+      '</div>';
+  } else {
+    profileHtml =
+      '<div class="sg-sharecard-card__photo" aria-label="Default profile photo">🥟</div>';
+  }
+
+  /* ── selfiePhoto (conditional) ── */
+  let selfieHtml = '';
+  if (hasSelfie) {
+    selfieHtml =
+      '<div class="sg-sharecard-card__photo-connector" aria-hidden="true"></div>' +
+      '<div class="sg-sharecard-card__photo-wrap">' +
+        '<div class="sg-sharecard-card__photo">' +
+          '<img src="' + customer.selfiePhoto + '" alt="Selfie photo">' +
+        '</div>' +
+        '<span class="sg-sharecard-card__photo-label">Selfie</span>' +
+      '</div>';
+  }
+
+  photosEl.innerHTML =
+    '<div class="sg-sharecard-card__photo-wrap">' +
+      profileHtml +
+      '<span class="sg-sharecard-card__photo-label">Profile</span>' +
+    '</div>' +
+    selfieHtml;
+}
+
+/**
+ * _shareCardPopulateStampStrip(stamps, claimed)
+ * Renders a mini 5-slot strip showing progress in the CURRENT cycle.
+ *
+ * Correct cycle formula:
+ *   cycleStamps = Math.min(5, stamps - (claimed * 5))
+ *   Clamped to [0, 5].
+ *
+ * V2.11A used (stamps % 5), which fails when stamps = 5 and claimed = 0:
+ *   5 % 5 = 0 → empty strip, but all 5 are earned (UNLOCKED state).
+ *   Correct: 5 - (0 * 5) = 5 → all 5 filled.
+ *
+ * Bound fields: currentStamps, rewardsClaimed
+ */
+function _shareCardPopulateStampStrip(stamps, claimed) {
+  const stripEl = document.getElementById('sgShareCardStampStrip');
+  if (!stripEl) return;
+
+  /* Correct cycle calculation using both stamps and claimed */
+  const cycleStamps = Math.min(5, Math.max(0, stamps - (claimed * 5)));
+
+  let html = '';
+  for (let i = 1; i <= 4; i++) {
+    if (i <= cycleStamps) {
+      html +=
+        '<div class="sg-sharecard-card__stamp-dot sg-sharecard-card__stamp-dot--filled"' +
+        ' aria-label="Stamp ' + i + ' collected">✓</div>';
+    } else {
+      html +=
+        '<div class="sg-sharecard-card__stamp-dot"' +
+        ' aria-label="Stamp ' + i + ' empty"></div>';
+    }
+  }
+
+  /* Gold reward slot — lit when all 5 cycle stamps are filled */
+  const rewardFilled = cycleStamps >= 5;
+  html +=
+    '<div class="sg-sharecard-card__stamp-reward"' +
+    ' aria-label="' + (rewardFilled ? 'Reward earned' : 'Free reward slot') + '">' +
+    (rewardFilled ? '🎁' : '⭐') +
+    '</div>';
+
+  stripEl.innerHTML = html;
+}
+
+/* ── Backdrop click to dismiss ── */
+document.addEventListener('DOMContentLoaded', function() {
+  const shareOverlay = document.getElementById('sgShareCardOverlay');
+  if (shareOverlay) {
+    shareOverlay.addEventListener('click', function(e) {
+      if (e.target === shareOverlay) closeShareCardPreview();
+    });
+  }
+});
+
+/* ── Escape key to dismiss ── */
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  const shareOverlay = document.getElementById('sgShareCardOverlay');
+  if (shareOverlay && shareOverlay.classList.contains('is-visible')) {
+    closeShareCardPreview();
+  }
+});
+
+/* ================================================================
+   V2.11D — IMAGE EXPORT ENGINE
+   Converts the Share Card (.sg-sharecard-card) into a PNG or JPG
+   image using html2canvas, rendered to an in-memory data URL.
+
+   Scope:
+     - Export only. The resulting image is shown as an inline
+       preview (<img>) inside the Share Card modal.
+     - No download (no <a download>, no file save).
+     - No sharing (no Web Share API, no clipboard write).
+     - Does not read or write any Firebase / customer data —
+       operates purely on the already-rendered DOM.
+
+   Entry points:
+     toggleImageExportPicker() — shows/hides the PNG/JPG picker
+     generateShareCardImage(format) — 'png' | 'jpg'
+   ================================================================ */
+
+/**
+ * toggleImageExportPicker()
+ * Shows or hides the PNG/JPG format picker row.
+ */
+function toggleImageExportPicker() {
+  const picker = document.getElementById('sgImgExportPicker');
+  const btn    = document.getElementById('sgImgExportBtn');
+  if (!picker || !btn) return;
+
+  const willShow = !picker.classList.contains('is-visible');
+  picker.classList.toggle('is-visible', willShow);
+  btn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
+}
+
+/**
+ * generateShareCardImage(format)
+ * Renders .sg-sharecard-card to a canvas via html2canvas and shows
+ * the resulting image (PNG or JPG) as an inline preview.
+ *
+ * format: 'png' | 'jpg'
+ *
+ * No download is triggered and no share/clipboard API is invoked —
+ * the generated image only ever lives in the preview <img> element.
+ *
+ * Implementation note:
+ *   The live .sg-sharecard-card sits inside a position:fixed overlay
+ *   whose modal wrapper is CSS-transformed (scale/translate) when
+ *   visible. html2canvas's crop calculation gets confused by that
+ *   ancestor transform and returns a blank canvas filled with the
+ *   requested background color. To avoid this, we capture an
+ *   off-screen clone of the card — same classes/content, so it picks
+ *   up the exact same styling from the global stylesheet — placed
+ *   directly under <body> with no transformed/fixed ancestors.
+ */
+function generateShareCardImage(format) {
+  const cardEl     = document.querySelector('.sg-sharecard-card');
+  const statusEl   = document.getElementById('sgImgExportStatus');
+  const previewEl  = document.getElementById('sgImgExportPreview');
+  const previewImg = document.getElementById('sgImgExportPreviewImg');
+  const captionEl  = document.getElementById('sgImgExportPreviewCaption');
+  const btnPng     = document.querySelector('.sg-imgexport-format-btn--png');
+  const btnJpg     = document.querySelector('.sg-imgexport-format-btn--jpg');
+
+  if (!cardEl) return;
+
+  if (typeof html2canvas !== 'function') {
+    if (statusEl) statusEl.textContent = '⚠️ Image engine unavailable';
+    return;
+  }
+
+  const isJpg = (format === 'jpg');
+
+  /* ── Loading state ── */
+  if (btnPng) btnPng.classList.add('is-loading');
+  if (btnJpg) btnJpg.classList.add('is-loading');
+  if (statusEl) statusEl.textContent = '⏳ Generating image…';
+  if (previewEl) previewEl.classList.remove('is-visible');
+
+  /* ── Build an off-screen, untransformed clone of the card ──
+     Same classes ⇒ same computed styles via the global stylesheet,
+     but with no position:fixed / transform ancestors to confuse
+     html2canvas's bounding-box calculation. */
+  const rect  = cardEl.getBoundingClientRect();
+  const clone = cardEl.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.setAttribute('aria-hidden', 'true');
+  clone.style.position = 'absolute';
+  clone.style.top      = '0';
+  clone.style.left     = '-9999px';
+  clone.style.margin   = '0';
+  clone.style.width    = rect.width + 'px';
+  clone.style.animation = 'none'; /* skip pop-in entrance animation */
+  document.body.appendChild(clone);
+
+  /* ── Wait for any <img> elements in the clone to finish decoding ── */
+  const imgs = Array.prototype.slice.call(clone.querySelectorAll('img'));
+  const imagesReady = Promise.all(imgs.map(function(img) {
+    if (img.complete) return Promise.resolve();
+    return new Promise(function(resolve) {
+      img.addEventListener('load', resolve, { once: true });
+      img.addEventListener('error', resolve, { once: true });
+    });
+  }));
+
+  imagesReady.then(function() {
+    return html2canvas(clone, {
+      backgroundColor: isJpg ? '#FFFFFF' : null, /* JPG has no alpha channel */
+      scale: Math.min(3, window.devicePixelRatio || 2),
+      useCORS: true
+    });
+  }).then(function(canvas) {
+    const mime    = isJpg ? 'image/jpeg' : 'image/png';
+    const quality = isJpg ? 0.95 : undefined;
+    const dataUrl = canvas.toDataURL(mime, quality);
+
+    if (previewImg) previewImg.src = dataUrl;
+    if (captionEl) {
+      captionEl.textContent =
+        (isJpg ? 'JPG' : 'PNG') + ' Preview · ' + canvas.width + '×' + canvas.height + 'px';
+    }
+    if (previewEl) previewEl.classList.add('is-visible');
+    if (statusEl) statusEl.textContent = '✅ Image generated';
+  }).catch(function(err) {
+    console.error('[V2.11D] Image export failed', err);
+    if (statusEl) statusEl.textContent = '⚠️ Image generation failed';
+  }).then(function() {
+    if (clone.parentNode) clone.parentNode.removeChild(clone);
+    if (btnPng) btnPng.classList.remove('is-loading');
+    if (btnJpg) btnJpg.classList.remove('is-loading');
+  });
+}
+
+/* ── Reset export UI whenever the Share Card modal is (re)opened ── */
+document.addEventListener('DOMContentLoaded', function() {
+  const shareOverlay = document.getElementById('sgShareCardOverlay');
+  if (!shareOverlay) return;
+
+  const observer = new MutationObserver(function() {
+    if (shareOverlay.classList.contains('is-visible')) {
+      _resetImageExportUI();
+    }
+  });
+  observer.observe(shareOverlay, { attributes: true, attributeFilter: ['class'] });
+});
+
+/**
+ * _resetImageExportUI()
+ * Clears the export picker, status, and preview so each modal
+ * open starts from a clean state. Purely cosmetic — touches only
+ * V2.11D elements.
+ */
+function _resetImageExportUI() {
+  const picker    = document.getElementById('sgImgExportPicker');
+  const btn       = document.getElementById('sgImgExportBtn');
+  const statusEl  = document.getElementById('sgImgExportStatus');
+  const previewEl = document.getElementById('sgImgExportPreview');
+
+  if (picker)    picker.classList.remove('is-visible');
+  if (btn)       btn.setAttribute('aria-expanded', 'false');
+  if (statusEl)  statusEl.textContent = '';
+  if (previewEl) previewEl.classList.remove('is-visible');
+}
+
+/* ================================================================
+   V2.11E — DOWNLOAD ACHIEVEMENT CARD
+   Reads the data-URL already produced by the V2.11D Export Engine
+   and triggers a browser file-save for PNG or JPG.
+
+   Scope:
+     - Download only. Does not re-render the card or invoke html2canvas.
+     - Does not read or write any Firebase / customer data.
+     - Does not modify Export Engine, Share Card, Rewards, or Passport.
+
+   Entry points:
+     downloadShareCardImage(format) — 'png' | 'jpg'
+
+   The download row (#sgImgDl) is shown once a preview exists and
+   is reset to hidden whenever the Share Card modal is (re)opened.
+   ================================================================ */
+
+/**
+ * downloadShareCardImage(format)
+ * Saves the already-generated preview image to the device.
+ * format: 'png' | 'jpg'
+ */
+function downloadShareCardImage(format) {
+  const previewImg = document.getElementById('sgImgExportPreviewImg');
+  const statusEl   = document.getElementById('sgImgDlStatus');
+  const btnPng     = document.getElementById('sgImgDlPngBtn');
+  const btnJpg     = document.getElementById('sgImgDlJpgBtn');
+
+  /* Guard: preview image must have a generated src */
+  if (!previewImg || !previewImg.src || previewImg.src === window.location.href) {
+    if (statusEl) statusEl.textContent = '⚠️ Generate an image first';
+    return;
+  }
+
+  const isJpg = (format === 'jpg');
+  const ext    = isJpg ? 'jpg' : 'png';
+  const filename = 'shumai-gosh-achievement.' + ext;
+
+  /* ── Loading state ── */
+  if (btnPng) btnPng.classList.add('is-saving');
+  if (btnJpg) btnJpg.classList.add('is-saving');
+  if (statusEl) statusEl.textContent = '⏳ Saving…';
+
+  try {
+    const anchor = document.createElement('a');
+    anchor.href = previewImg.src;
+    anchor.download = filename;
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+
+    if (statusEl) statusEl.textContent = '✅ Saved as ' + filename;
+  } catch (err) {
+    console.error('[V2.11E] Download failed', err);
+    if (statusEl) statusEl.textContent = '⚠️ Save failed — please try again';
+  } finally {
+    if (btnPng) btnPng.classList.remove('is-saving');
+    if (btnJpg) btnJpg.classList.remove('is-saving');
+  }
+}
+
+/**
+ * _resetImageDownloadUI()
+ * Hides the download row and clears its status each time
+ * the Share Card modal is (re)opened. Called by the patched
+ * _resetImageExportUI below.
+ */
+function _resetImageDownloadUI() {
+  const dlRow  = document.getElementById('sgImgDl');
+  const status = document.getElementById('sgImgDlStatus');
+  if (dlRow)  dlRow.classList.remove('is-visible');
+  if (status) status.textContent = '';
+}
+
+/* ── Extend V2.11D's reset so the download row is hidden on each open ── */
+(function _extendResetForV2_11E() {
+  const _orig = window._resetImageExportUI;
+  window._resetImageExportUI = function() {
+    if (typeof _orig === 'function') _orig();
+    _resetImageDownloadUI();
+  };
+})();
+
+/* ── Show the download row whenever the Export Engine surfaces a preview ── */
+(function _watchExportPreviewForV2_11E() {
+  document.addEventListener('DOMContentLoaded', function() {
+    const previewEl = document.getElementById('sgImgExportPreview');
+    const dlRow     = document.getElementById('sgImgDl');
+    if (!previewEl || !dlRow) return;
+
+    new MutationObserver(function() {
+      const hasPreview = previewEl.classList.contains('is-visible');
+      dlRow.classList.toggle('is-visible', hasPreview);
+      if (!hasPreview) {
+        const status = document.getElementById('sgImgDlStatus');
+        if (status) status.textContent = '';
+      }
+    }).observe(previewEl, { attributes: true, attributeFilter: ['class'] });
+  });
+})();
+
+/* ================================================================
+   V2.11F — NATIVE SHARE API
+   Shares the achievement card image via the device's native share
+   sheet using navigator.share(). Operates on the data-URL already
+   produced by the V2.11D Export Engine — does not re-render the card.
+
+   Scope:
+     - Native share only. No download, no clipboard, no cloud upload.
+     - Does not read or write any Firebase / customer data.
+     - Does not modify Share Card, Export Engine, Rewards, or Passport.
+
+   Entry points:
+     nativeShareAchievementCard() — invokes navigator.share()
+
+   Fallback:
+     If navigator.share() is unavailable, displays:
+     "Sharing not supported on this device."
+
+   The share row (#sgNativeShare) is shown/hidden in sync with
+   the Export Engine preview, and reset on each modal open.
+   ================================================================ */
+
+/**
+ * nativeShareAchievementCard()
+ * Converts the already-generated preview data-URL to a File and
+ * passes it to navigator.share(). Falls back gracefully if the
+ * Web Share API or file sharing is unavailable.
+ */
+async function nativeShareAchievementCard() {
+  const previewImg = document.getElementById('sgImgExportPreviewImg');
+  const statusEl   = document.getElementById('sgNativeShareStatus');
+  const shareBtn   = document.getElementById('sgNativeShareBtn');
+
+  /* ── Unsupported: navigator.share not available ── */
+  if (!navigator.share) {
+    if (statusEl) {
+      statusEl.textContent = 'Sharing not supported on this device.';
+      statusEl.classList.add('sg-nativeshare__status--unsupported');
+    }
+    return;
+  }
+
+  /* ── Guard: a preview image must exist ── */
+  if (!previewImg || !previewImg.src || previewImg.src === window.location.href) {
+    if (statusEl) statusEl.textContent = '⚠️ Generate an image first';
+    return;
+  }
+
+  /* ── Determine format from the data-URL mime type ── */
+  const isJpg  = previewImg.src.startsWith('data:image/jpeg');
+  const mime   = isJpg ? 'image/jpeg' : 'image/png';
+  const ext    = isJpg ? 'jpg'        : 'png';
+  const filename = 'shumai-gosh-achievement.' + ext;
+
+  /* ── Loading state ── */
+  if (shareBtn) shareBtn.classList.add('is-sharing');
+  if (statusEl) {
+    statusEl.textContent = '';
+    statusEl.classList.remove('sg-nativeshare__status--unsupported');
+  }
+
+  try {
+    /* Convert data-URL → Blob → File */
+    const res   = await fetch(previewImg.src);
+    const blob  = await res.blob();
+    const file  = new File([blob], filename, { type: mime });
+
+    const shareData = {
+      title: 'My Shumai-Gosh! Achievement',
+      text:  'Check out my Shumai-Gosh! Rewards Passport achievement! 🥟',
+      files: [file]
+    };
+
+    /* Check if sharing files is supported; fall back to text-only share */
+    if (navigator.canShare && !navigator.canShare(shareData)) {
+      /* File sharing unsupported — try without the image */
+      await navigator.share({
+        title: shareData.title,
+        text:  shareData.text
+      });
+    } else {
+      await navigator.share(shareData);
+    }
+
+    if (statusEl) statusEl.textContent = '✅ Shared successfully';
+
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      /* User dismissed the share sheet — not an error */
+      if (statusEl) statusEl.textContent = '';
+    } else {
+      console.error('[V2.11F] Share failed', err);
+      if (statusEl) statusEl.textContent = '⚠️ Share failed — please try again';
+    }
+  } finally {
+    if (shareBtn) shareBtn.classList.remove('is-sharing');
+  }
+}
+
+/**
+ * _resetNativeShareUI()
+ * Hides the share row and clears its status on each modal open.
+ */
+function _resetNativeShareUI() {
+  const shareRow = document.getElementById('sgNativeShare');
+  const statusEl = document.getElementById('sgNativeShareStatus');
+  if (shareRow) shareRow.classList.remove('is-visible');
+  if (statusEl) {
+    statusEl.textContent = '';
+    statusEl.classList.remove('sg-nativeshare__status--unsupported');
+  }
+}
+
+/* ── Extend the reset chain: V2.11D → V2.11E → V2.11F ── */
+(function _extendResetForV2_11F() {
+  const _prev = window._resetImageExportUI;
+  window._resetImageExportUI = function() {
+    if (typeof _prev === 'function') _prev();
+    _resetNativeShareUI();
+  };
+})();
+
+/* ── Show the share row in sync with the Export Engine preview ── */
+(function _watchExportPreviewForV2_11F() {
+  document.addEventListener('DOMContentLoaded', function() {
+    const previewEl  = document.getElementById('sgImgExportPreview');
+    const shareRow   = document.getElementById('sgNativeShare');
+    if (!previewEl || !shareRow) return;
+
+    new MutationObserver(function() {
+      const hasPreview = previewEl.classList.contains('is-visible');
+      shareRow.classList.toggle('is-visible', hasPreview);
+      if (!hasPreview) _resetNativeShareUI();
+    }).observe(previewEl, { attributes: true, attributeFilter: ['class'] });
+  });
+})();
+
+/* ================================================================
+   V2.11G — DYNAMIC ACHIEVEMENT TYPES
+   Generates different achievement card content depending on the
+   type of achievement being shared. Operates as a presentation
+   layer on top of the existing Share Card (V2.11B) data binding.
+
+   Four achievement types:
+     'stampEarned'       — A new stamp was collected
+     'rewardUnlocked'    — 5 stamps reached; reward available
+     'rewardClaimed'     — A free reward was redeemed
+     'passportCompleted' — All rewards earned (full passport)
+
+   Scope:
+     - Card content and visual theming only.
+     - Does not modify Sharing, Export, QR, or Rewards Logic.
+     - Does not write to Firebase or any customer record.
+     - All changes are cosmetic DOM writes to the Share Card card
+       element and V2.11G-specific badge/headline slots.
+
+   Entry points:
+     openShareCardPreviewWithType(type)   — typed entry point
+     openShareCardPreview()               — unchanged; falls back
+                                            to no achievement overlay
+   ================================================================ */
+
+/**
+ * SG_ACHIEVEMENT_TYPES
+ * Static definition table for all four achievement card types.
+ * Each entry specifies:
+ *   icon         — emoji rendered in the badge pill
+ *   label        — short uppercase pill text
+ *   title        — headline copy inside the card
+ *   sub          — sub-headline copy inside the card
+ *   modalTitle   — text shown in the top bar of the share modal
+ *   cardClass    — BEM modifier applied to .sg-sharecard-card
+ *   stampEmphasis — whether to highlight the newest stamp dot
+ */
+var SG_ACHIEVEMENT_TYPES = {
+  stampEarned: {
+    icon:          '🥟',
+    label:         'Stamp Earned',
+    title:         'New Stamp Collected!',
+    sub:           'One step closer to a free reward.',
+    modalTitle:    '🥟 Stamp Earned',
+    cardClass:     'sg-sharecard-card--stamp-earned',
+    stampEmphasis: true
+  },
+  rewardUnlocked: {
+    icon:          '🎁',
+    label:         'Reward Unlocked',
+    title:         'Free Reward Unlocked!',
+    sub:           'You\'ve earned a free Siomai — claim it now.',
+    modalTitle:    '🎁 Reward Unlocked',
+    cardClass:     'sg-sharecard-card--reward-unlocked',
+    stampEmphasis: false
+  },
+  rewardClaimed: {
+    icon:          '✅',
+    label:         'Reward Claimed',
+    title:         'Reward Redeemed!',
+    sub:           'Enjoy your free Siomai treat. 🥟',
+    modalTitle:    '✅ Reward Claimed',
+    cardClass:     'sg-sharecard-card--reward-claimed',
+    stampEmphasis: false
+  },
+  passportCompleted: {
+    icon:          '🏆',
+    label:         'Passport Complete',
+    title:         'Passport Completed!',
+    sub:           'All rewards earned. You\'re a Shumai-Gosh! legend.',
+    modalTitle:    '🏆 Passport Completed',
+    cardClass:     'sg-sharecard-card--passport-completed',
+    stampEmphasis: false
+  }
+};
+
+/** All card modifier classes — used to strip before applying a new type. */
+var _SG_ALL_CARD_CLASSES = [
+  'sg-sharecard-card--stamp-earned',
+  'sg-sharecard-card--reward-unlocked',
+  'sg-sharecard-card--reward-claimed',
+  'sg-sharecard-card--passport-completed'
+];
+
+/**
+ * openShareCardPreviewWithType(type)
+ * Typed entry point. Applies the achievement overlay for the given
+ * type, then delegates to the existing openShareCardPreview().
+ *
+ * type: 'stampEarned' | 'rewardUnlocked' | 'rewardClaimed' | 'passportCompleted'
+ *       Pass null / undefined to open with no achievement overlay.
+ */
+function openShareCardPreviewWithType(type) {
+  /* Store the requested type so _shareCardApplyAchievementType()
+     can read it after openShareCardPreview() has run its data bind. */
+  window._sgPendingAchievementType = type || null;
+  openShareCardPreview();
+}
+
+/**
+ * _shareCardApplyAchievementType(type)
+ * Applies the achievement-specific visual overlay to the card.
+ * Safe to call with null — clears all type state (neutral card).
+ *
+ * Touches only:
+ *   - .sg-sharecard-card modifier classes
+ *   - #sgShareCardAchievementBadge slots
+ *   - #sgShareCardAchievementHeadline slots
+ *   - #sgShareCardTitle (modal top-bar label)
+ *   - newest stamp dot (--latest class for stampEarned pulse)
+ */
+function _shareCardApplyAchievementType(type) {
+  const cardEl    = document.getElementById('sgShareCardCard');
+  const badgeEl   = document.getElementById('sgShareCardAchievementBadge');
+  const iconEl    = document.getElementById('sgShareCardAchievementIcon');
+  const labelEl   = document.getElementById('sgShareCardAchievementLabel');
+  const headEl    = document.getElementById('sgShareCardAchievementHeadline');
+  const titleEl   = document.getElementById('sgShareCardAchievementTitle');
+  const subEl     = document.getElementById('sgShareCardAchievementSub');
+  const modalTitle = document.getElementById('sgShareCardTitle');
+
+  /* ── Clear all type-specific state ── */
+  if (cardEl) {
+    _SG_ALL_CARD_CLASSES.forEach(function(cls) { cardEl.classList.remove(cls); });
+  }
+  if (badgeEl)  badgeEl.classList.remove('is-visible');
+  if (headEl)   headEl.classList.remove('is-visible');
+
+  /* Remove --latest from any previously pulsing stamp dot */
+  var prevLatest = document.querySelector('.sg-sharecard-card__stamp-dot--latest');
+  if (prevLatest) prevLatest.classList.remove('sg-sharecard-card__stamp-dot--latest');
+
+  /* ── No type: restore neutral modal title and return ── */
+  if (!type || !SG_ACHIEVEMENT_TYPES[type]) {
+    if (modalTitle) modalTitle.textContent = 'Share Achievement';
+    return;
+  }
+
+  var cfg = SG_ACHIEVEMENT_TYPES[type];
+
+  /* ── Apply card modifier class ── */
+  if (cardEl) cardEl.classList.add(cfg.cardClass);
+
+  /* ── Populate and show badge pill ── */
+  if (iconEl)  iconEl.textContent  = cfg.icon;
+  if (labelEl) labelEl.textContent = cfg.label;
+  if (badgeEl) badgeEl.classList.add('is-visible');
+
+  /* ── Populate and show headline + sub-headline ── */
+  if (titleEl) titleEl.textContent = cfg.title;
+  if (subEl)   subEl.textContent   = cfg.sub;
+  if (headEl)  headEl.classList.add('is-visible');
+
+  /* ── Update modal top-bar title ── */
+  if (modalTitle) modalTitle.textContent = cfg.modalTitle;
+
+  /* ── stampEarned: pulse the newest filled stamp dot ── */
+  if (cfg.stampEmphasis) {
+    /* After the stamp strip is painted, find the last filled dot */
+    setTimeout(function() {
+      var dots = document.querySelectorAll(
+        '#sgShareCardStampStrip .sg-sharecard-card__stamp-dot--filled'
+      );
+      if (dots.length > 0) {
+        dots[dots.length - 1].classList.add('sg-sharecard-card__stamp-dot--latest');
+      }
+    }, 50); /* brief defer to ensure _shareCardPopulateStampStrip has run */
+  }
+}
+
+/**
+ * _resetAchievementTypeUI()
+ * Clears all achievement type state from the card on modal open.
+ * Called via the extended reset chain.
+ */
+function _resetAchievementTypeUI() {
+  window._sgPendingAchievementType = null;
+  _shareCardApplyAchievementType(null);
+}
+
+/* ── Extend the reset chain: V2.11D → E → F → G ── */
+(function _extendResetForV2_11G() {
+  const _prev = window._resetImageExportUI;
+  window._resetImageExportUI = function() {
+    if (typeof _prev === 'function') _prev();
+    _resetAchievementTypeUI();
+  };
+})();
+
+/* ── Hook into _shareCardBind to apply the pending type after data binding ──
+   Wraps the existing _shareCardBind without modifying it. The pending type
+   is set by openShareCardPreviewWithType() before openShareCardPreview() runs. */
+(function _hookShareCardBindForV2_11G() {
+  const _origBind = window._shareCardBind;
+  if (typeof _origBind !== 'function') return;
+
+  window._shareCardBind = function(customer) {
+    _origBind(customer);
+    /* Apply achievement type overlay after data binding completes */
+    var pendingType = window._sgPendingAchievementType || null;
+    _shareCardApplyAchievementType(pendingType);
+  };
+})();
+
+/* ================================================================
+   V2.11H — SOCIAL PLATFORM SHORTCUTS
+   Quick-access buttons for jumping straight into Facebook,
+   Messenger, Instagram, or TikTok to share the achievement.
+
+   Scope:
+     - Attempts to open each platform's app via its custom URL
+       scheme (deep link) only.
+     - If the platform app does not appear to open within a short
+       window, falls back to the existing Native Share API by
+       invoking nativeShareAchievementCard() (V2.11F) — invoked,
+       not modified.
+     - Does not read or write any Firebase / customer data.
+     - Does not modify Share Card, Export Engine, Native Share,
+       Rewards, or Passport.
+
+   Entry point:
+     shareToSocialPlatform(platformKey)
+       platformKey: 'facebook' | 'messenger' | 'instagram' | 'tiktok'
+   ================================================================ */
+
+/**
+ * SG_SOCIAL_PLATFORMS
+ * Definition table for each platform shortcut.
+ *   label  — display name used in status messages
+ *   btnId  — id of the corresponding shortcut button (for is-opening state)
+ *   appUrl — returns the platform's custom URL scheme (deep link)
+ */
+var SG_SOCIAL_PLATFORMS = {
+  facebook: {
+    label: 'Facebook',
+    btnId: 'sgSocialShareFacebookBtn',
+    appUrl: function(shareUrl) {
+      return 'fb://facewebmodal/f?href=' + encodeURIComponent(shareUrl);
+    }
+  },
+  messenger: {
+    label: 'Messenger',
+    btnId: 'sgSocialShareMessengerBtn',
+    appUrl: function(shareUrl) {
+      return 'fb-messenger://share?link=' + encodeURIComponent(shareUrl);
+    }
+  },
+  instagram: {
+    label: 'Instagram',
+    btnId: 'sgSocialShareInstagramBtn',
+    appUrl: function() {
+      return 'instagram://app';
+    }
+  },
+  tiktok: {
+    label: 'TikTok',
+    btnId: 'sgSocialShareTiktokBtn',
+    appUrl: function() {
+      return 'tiktok://';
+    }
+  }
+};
+
+/** Time to wait for the platform app to take over before falling back. */
+var SG_SOCIAL_FALLBACK_DELAY_MS = 1200;
+
+/**
+ * _sgAttemptAppLink(appLink)
+ * Attempts to open a custom URL scheme (deep link) via a hidden,
+ * short-lived iframe instead of navigating window.location.
+ *
+ * Navigating window.location.href directly to an unregistered
+ * custom scheme (fb://, fb-messenger://, instagram://, tiktok://)
+ * causes a top-level navigation attempt. On desktop browsers,
+ * in-app webviews, and sandboxed/iframe previews this either logs
+ * a blocked-navigation error or replaces the entire page with a
+ * browser error screen — wiping out the whole app. Routing the
+ * attempt through a detached iframe contains any failure there,
+ * leaving the visible page untouched either way.
+ *
+ * Returns true if the attempt was made, false if it could not be
+ * started at all (caller should fall back immediately).
+ */
+function _sgAttemptAppLink(appLink) {
+  try {
+    var iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(iframe);
+    iframe.src = appLink;
+    setTimeout(function() {
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    }, SG_SOCIAL_FALLBACK_DELAY_MS + 500);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * shareToSocialPlatform(platformKey)
+ * Attempts to open the given platform's app via its custom URL
+ * scheme. If nothing takes over the page within
+ * SG_SOCIAL_FALLBACK_DELAY_MS (no visibilitychange / blur /
+ * pagehide), assumes the app is unavailable and falls back to
+ * nativeShareAchievementCard().
+ */
+function shareToSocialPlatform(platformKey) {
+  var platform = SG_SOCIAL_PLATFORMS[platformKey];
+  var statusEl = document.getElementById('sgSocialShareStatus');
+  if (!platform) return;
+
+  var btnEl = platform.btnId ? document.getElementById(platform.btnId) : null;
+  var shareUrl = window.location.href;
+  var appLink;
+
+  try {
+    appLink = platform.appUrl(shareUrl);
+  } catch (e) {
+    appLink = null;
+  }
+
+  if (statusEl) statusEl.textContent = 'Opening ' + platform.label + '…';
+  if (btnEl) btnEl.classList.add('is-opening');
+
+  var settled = false;
+  var fallbackTimer = null;
+
+  function cleanup() {
+    document.removeEventListener('visibilitychange', onAppTakeover);
+    window.removeEventListener('pagehide', onAppTakeover);
+    window.removeEventListener('blur', onAppTakeover);
+    clearTimeout(fallbackTimer);
+  }
+
+  /* Fired if the platform app takes over the screen (page hidden / loses focus). */
+  function onAppTakeover() {
+    if (settled) return;
+    settled = true;
+    cleanup();
+    if (btnEl) btnEl.classList.remove('is-opening');
+    if (statusEl) statusEl.textContent = '✅ Opened ' + platform.label;
+  }
+
+  /* Fired if the app never took over — use the Native Share API instead. */
+  function onFallback() {
+    if (settled) return;
+    settled = true;
+    cleanup();
+    if (btnEl) btnEl.classList.remove('is-opening');
+    if (statusEl) statusEl.textContent = platform.label + ' unavailable — using device share…';
+    nativeShareAchievementCard();
+  }
+
+  fallbackTimer = setTimeout(onFallback, SG_SOCIAL_FALLBACK_DELAY_MS);
+
+  document.addEventListener('visibilitychange', onAppTakeover);
+  window.addEventListener('pagehide', onAppTakeover);
+  window.addEventListener('blur', onAppTakeover);
+
+  if (!appLink || !_sgAttemptAppLink(appLink)) {
+    onFallback();
+    return;
+  }
+}
+
 </script>
 
 <!-- ================================================================
@@ -8105,6 +9796,229 @@ document.addEventListener('keydown', function(e) {
     </div>
   </div>
 </div>
+
+<!-- ================================================================
+     V2.11A — SHARE CARD PREVIEW OVERLAY
+     Preview only. No export / share / download.
+     ================================================================ -->
+<div class="sg-sharecard-overlay" id="sgShareCardOverlay"
+  role="dialog" aria-modal="true" aria-labelledby="sgShareCardTitle" aria-hidden="true">
+  <div class="sg-sharecard-modal">
+
+    <!-- Awning stripe -->
+    <div class="sg-sharecard-modal__awning" aria-hidden="true"></div>
+
+    <!-- Top bar -->
+    <div class="sg-sharecard-modal__topbar">
+      <span class="sg-sharecard-modal__title" id="sgShareCardTitle">Share Achievement</span>
+      <button class="sg-sharecard-modal__close" type="button"
+        onclick="closeShareCardPreview()" aria-label="Close achievement card preview">✕</button>
+    </div>
+
+    <!-- The visual achievement card -->
+    <div class="sg-sharecard-card" id="sgShareCardCard" aria-label="Your achievement summary">
+
+      <!-- ================================================================
+           V2.11G — DYNAMIC ACHIEVEMENT TYPES
+           Badge and headline slots. Hidden by default; populated and
+           shown by _shareCardApplyAchievementType(). Type modifier class
+           applied to .sg-sharecard-card for colour theming.
+           ================================================================ -->
+      <div class="sg-sharecard-card__achievement-badge" id="sgShareCardAchievementBadge"
+        aria-label="Achievement type" role="status">
+        <span class="sg-sharecard-card__achievement-badge__icon" id="sgShareCardAchievementIcon" aria-hidden="true"></span>
+        <span id="sgShareCardAchievementLabel"></span>
+      </div>
+      <div class="sg-sharecard-card__achievement-headline" id="sgShareCardAchievementHeadline">
+        <div class="sg-sharecard-card__achievement-title" id="sgShareCardAchievementTitle"></div>
+        <div class="sg-sharecard-card__achievement-sub"   id="sgShareCardAchievementSub"></div>
+      </div>
+
+      <!-- Brand header -->
+      <div class="sg-sharecard-card__brand">
+        <div class="sg-sharecard-card__brand-name">
+          Shumai-<span class="brown">Gosh!</span>
+        </div>
+        <div class="sg-sharecard-card__brand-sub">Rewards Passport</div>
+      </div>
+
+      <!-- Photos row: Profile Photo + Selfie Photo -->
+      <div class="sg-sharecard-card__photos" id="sgShareCardPhotos">
+        <!-- Populated by openShareCardPreview() -->
+      </div>
+
+      <!-- Customer identity -->
+      <div class="sg-sharecard-card__identity">
+        <div class="sg-sharecard-card__name" id="sgShareCardName">—</div>
+        <div class="sg-sharecard-card__passport" id="sgShareCardPassport">—</div>
+        <span class="sg-sharecard-card__id" id="sgShareCardId" aria-label="Customer ID">—</span>
+      </div>
+
+      <!-- Divider -->
+      <div class="sg-sharecard-card__divider" aria-hidden="true"></div>
+
+      <!-- Stats: Stamps + Rewards Claimed -->
+      <div class="sg-sharecard-card__stats" aria-label="Passport statistics">
+        <div class="sg-sharecard-card__stat">
+          <span class="sg-sharecard-card__stat-icon" aria-hidden="true">🥟</span>
+          <span class="sg-sharecard-card__stat-value" id="sgShareCardStamps">0</span>
+          <span class="sg-sharecard-card__stat-label">Total Stamps</span>
+        </div>
+        <div class="sg-sharecard-card__stat">
+          <span class="sg-sharecard-card__stat-icon" aria-hidden="true">🎁</span>
+          <span class="sg-sharecard-card__stat-value" id="sgShareCardRewards">0</span>
+          <span class="sg-sharecard-card__stat-label">Rewards Claimed</span>
+        </div>
+      </div>
+
+      <!-- Mini stamp strip (current cycle: stamps mod 5) -->
+      <div class="sg-sharecard-card__stamps" id="sgShareCardStampStrip"
+        aria-label="Current stamp progress" aria-live="polite">
+        <!-- Populated by openShareCardPreview() -->
+      </div>
+
+    </div><!-- /.sg-sharecard-card -->
+
+    <!-- Preview-only notice -->
+    <p class="sg-sharecard-notice" role="note">
+      👁 Preview only · Not shared or exported
+    </p>
+
+    <!-- ================================================================
+         V2.11D — IMAGE EXPORT ENGINE
+         Renders .sg-sharecard-card to a canvas and produces a PNG/JPG
+         in-memory preview image. Export only — no download, no sharing.
+         ================================================================ -->
+    <div class="sg-imgexport" id="sgImgExport">
+      <button class="sg-imgexport-btn" id="sgImgExportBtn" type="button"
+        onclick="toggleImageExportPicker()"
+        aria-expanded="false" aria-controls="sgImgExportPicker"
+        aria-label="Generate an image of this achievement card">
+        <span class="sg-imgexport-btn__icon" aria-hidden="true">🖼️</span>
+        Generate Image
+      </button>
+
+      <div class="sg-imgexport-picker" id="sgImgExportPicker" role="group" aria-label="Choose image format">
+        <span class="sg-imgexport-picker__label">Format</span>
+        <button class="sg-imgexport-format-btn sg-imgexport-format-btn--png" type="button"
+          onclick="generateShareCardImage('png')" aria-label="Generate PNG image">PNG</button>
+        <button class="sg-imgexport-format-btn sg-imgexport-format-btn--jpg" type="button"
+          onclick="generateShareCardImage('jpg')" aria-label="Generate JPG image">JPG</button>
+      </div>
+
+      <p class="sg-imgexport-status" id="sgImgExportStatus" aria-live="polite"></p>
+
+      <div class="sg-imgexport-preview" id="sgImgExportPreview" aria-live="polite">
+        <div class="sg-imgexport-preview__frame">
+          <img class="sg-imgexport-preview__img" id="sgImgExportPreviewImg" alt="Generated preview of your achievement card image">
+        </div>
+        <span class="sg-imgexport-preview__caption" id="sgImgExportPreviewCaption"></span>
+      </div>
+
+      <!-- ================================================================
+           V2.11E — DOWNLOAD ACHIEVEMENT CARD
+           Appears once a preview image has been generated.
+           Operates on the data-URL already stored in sgImgExportPreviewImg.
+           No modifications to Export Engine, Share Card, Rewards, or Passport.
+           ================================================================ -->
+      <div class="sg-imgdl" id="sgImgDl" aria-label="Download generated image">
+        <span class="sg-imgdl__label">Save Image</span>
+        <div class="sg-imgdl__row">
+          <button class="sg-imgdl__btn sg-imgdl__btn--png" id="sgImgDlPngBtn" type="button"
+            onclick="downloadShareCardImage('png')"
+            aria-label="Save achievement card as PNG">
+            <span class="sg-imgdl__btn__icon" aria-hidden="true">⬇️</span> Save PNG
+          </button>
+          <button class="sg-imgdl__btn sg-imgdl__btn--jpg" id="sgImgDlJpgBtn" type="button"
+            onclick="downloadShareCardImage('jpg')"
+            aria-label="Save achievement card as JPG">
+            <span class="sg-imgdl__btn__icon" aria-hidden="true">⬇️</span> Save JPG
+          </button>
+        </div>
+        <p class="sg-imgdl__status" id="sgImgDlStatus" aria-live="polite"></p>
+      </div>
+
+      <!-- ================================================================
+           V2.11F — NATIVE SHARE API
+           Appears once a preview image has been generated.
+           Invokes navigator.share() with the generated image file.
+           Falls back to an unsupported notice if the API is unavailable.
+           No modifications to Share Card, Export Engine, Rewards, or Passport.
+           ================================================================ -->
+      <div class="sg-nativeshare" id="sgNativeShare" aria-label="Share achievement card">
+        <hr class="sg-nativeshare__divider" aria-hidden="true">
+        <button class="sg-nativeshare__btn" id="sgNativeShareBtn" type="button"
+          onclick="nativeShareAchievementCard()"
+          aria-label="Share your achievement card via your device share sheet">
+          <span class="sg-nativeshare__btn__icon" aria-hidden="true">📤</span>
+          Share Achievement
+        </button>
+        <p class="sg-nativeshare__status" id="sgNativeShareStatus" aria-live="polite"></p>
+      </div>
+
+      <!-- ================================================================
+           V2.11H — SOCIAL PLATFORM SHORTCUTS
+           Quick-access buttons for Facebook, Messenger, Instagram, and
+           TikTok. Each attempts to open the platform's app directly;
+           if unavailable, falls back to the existing Native Share API
+           (V2.11F nativeShareAchievementCard()) — invoked, not modified.
+           No modifications to Share Card, Export Engine, Native Share,
+           Rewards, or Passport.
+           ================================================================ -->
+      <div class="sg-socialshare" id="sgSocialShare" aria-label="Quick share to social platforms">
+        <hr class="sg-socialshare__divider" aria-hidden="true">
+        <span class="sg-socialshare__label">Quick Share</span>
+        <div class="sg-socialshare__row" role="group" aria-label="Social platform shortcuts">
+          <button class="sg-socialshare__btn sg-socialshare__btn--facebook" type="button"
+            id="sgSocialShareFacebookBtn"
+            onclick="shareToSocialPlatform('facebook')"
+            aria-label="Share to Facebook">
+            <span class="sg-socialshare__btn__icon" aria-hidden="true">📘</span>
+            <span class="sg-socialshare__btn__label">Facebook</span>
+          </button>
+          <button class="sg-socialshare__btn sg-socialshare__btn--messenger" type="button"
+            id="sgSocialShareMessengerBtn"
+            onclick="shareToSocialPlatform('messenger')"
+            aria-label="Share to Messenger">
+            <span class="sg-socialshare__btn__icon" aria-hidden="true">💬</span>
+            <span class="sg-socialshare__btn__label">Messenger</span>
+          </button>
+          <button class="sg-socialshare__btn sg-socialshare__btn--instagram" type="button"
+            id="sgSocialShareInstagramBtn"
+            onclick="shareToSocialPlatform('instagram')"
+            aria-label="Share to Instagram">
+            <span class="sg-socialshare__btn__icon" aria-hidden="true">📷</span>
+            <span class="sg-socialshare__btn__label">Instagram</span>
+          </button>
+          <button class="sg-socialshare__btn sg-socialshare__btn--tiktok" type="button"
+            id="sgSocialShareTiktokBtn"
+            onclick="shareToSocialPlatform('tiktok')"
+            aria-label="Share to TikTok">
+            <span class="sg-socialshare__btn__icon" aria-hidden="true">🎵</span>
+            <span class="sg-socialshare__btn__label">TikTok</span>
+          </button>
+        </div>
+        <p class="sg-socialshare__status" id="sgSocialShareStatus" aria-live="polite"></p>
+      </div>
+
+    </div>
+
+    <!-- V2.11C: Modal action footer -->
+    <div class="sg-sharecard-modal__actions">
+      <button class="sg-sharecard-modal__btn-close" type="button"
+        onclick="closeShareCardPreview()"
+        aria-label="Close share achievement preview">
+        Close
+      </button>
+      <button class="sg-sharecard-modal__btn-coming-soon" type="button"
+        onclick="nativeShareAchievementCard()"
+        aria-label="Share your achievement card via your device share sheet">
+        📤 &nbsp;Share Card
+      </button>
+    </div>
+
+  </div><!-- /.sg-sharecard-modal -->
+</div><!-- /.sg-sharecard-overlay -->
 
 </body>
 </html>
