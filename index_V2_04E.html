@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shumai-Gosh! — Rewards Passport V2.11H</title>
+<title>Shumai-Gosh! — Rewards Passport V2.11J</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -691,7 +691,7 @@ body {
 }
 
 /* ============================================================
-   V2.11H — SOCIAL PLATFORM SHORTCUTS
+   V2.11J — SOCIAL PLATFORM SHORTCUTS
    Quick-access buttons that attempt to open Facebook, Messenger,
    Instagram, or TikTok directly. If the platform app is
    unavailable, falls back to the existing Native Share API
@@ -4712,7 +4712,7 @@ function saveCustomers(customers) {
   customers.forEach(c => _syncCustomer(c).catch(()=>{}));
 }
 
-function normaliseMobile(v) { const d=v.replace(/\D/g,''); return d.startsWith('0')?d.slice(1):d; }
+function normaliseMobile(v) { const d=v.replace(/\D/g,''); return d.startsWith('63')?d.slice(2):d.startsWith('0')?d.slice(1):d; }
 function findByMobile(m) { return loadCustomers().find(c=>normaliseMobile(c.mobileNumber)===normaliseMobile(m))||null; }
 function findById(id) { return loadCustomers().find(c=>c.customerId===id)||null; }
 
@@ -5205,12 +5205,17 @@ function awardStamp(customerId) {
   if(cycleCompleted){
     all[idx].rewardReady      = true;
     all[idx].rewardUnlockedAt = new Date().toISOString();
+    /* V2.11I — Selfie Challenge Bonus: award free softdrinks if selfie is on file */
+    all[idx].bonusReward = !!(all[idx].selfiePhoto);
   }
   /* V2.09C — Integrity check after stamp award */
   _sgVerifyRewardIntegrity(all[idx]);
   saveCustomers(all);
   logActivity(customerId,'stamp',`Stamp #${n} Collected 🥟`,`You've collected ${n} stamp${n!==1?'s':''} on your passport.`);
-  if(cycleCompleted) logActivity(customerId,'rewardUnlocked','Reward Unlocked 🎁',`Congratulations! You've earned a Free Siomai Reward. Visit us to claim it.`);
+  if(cycleCompleted){
+    const bonusMsg = all[idx].bonusReward ? ' + Free Softdrinks bonus (Selfie Challenge)! 🥤' : '';
+    logActivity(customerId,'rewardUnlocked','Reward Unlocked 🎁',`Congratulations! You've earned a Free Siomai Reward${bonusMsg} Visit us to claim it.`);
+  }
   autoSave(customerId); return all[idx];
 }
 function claimReward(customerId) {
@@ -5226,10 +5231,16 @@ function claimReward(customerId) {
   all[idx].rewardState     = REWARD_STATE.CLAIMED;
   all[idx].rewardClaimedAt = claimedAt;
   all[idx].rewardReady     = false;
+  /* V2.11I — clear bonus flag on claim */
+  const hadBonus = !!(all[idx].bonusReward);
+  all[idx].bonusReward = false;
   /* V2.09C — Integrity check: verify CLAIMED state is consistent */
   _sgVerifyRewardIntegrity(all[idx]);
   saveCustomers(all);
-  logActivity(customerId, 'rewardClaimed', 'Free Siomai Reward Claimed! ✅', `Reward #${all[idx].rewardsClaimed} claimed. Enjoy your Siomai!`);
+  const claimDesc = hadBonus
+    ? `Reward #${all[idx].rewardsClaimed} claimed. Enjoy your Free Siomai + Softdrinks! 🥟🥤`
+    : `Reward #${all[idx].rewardsClaimed} claimed. Enjoy your Siomai!`;
+  logActivity(customerId, 'rewardClaimed', 'Free Siomai Reward Claimed! ✅', claimDesc);
   autoSave(customerId); return all[idx];
 }
 
@@ -7690,6 +7701,21 @@ const CONFETTI_COLORS = ['#E05580','#F2849E','#FFB6C1','#4A2112','#FCEAEA','#FFC
 function showRewardUnlockModal() {
   const overlay = document.getElementById('sgRewardUnlockOverlay');
   if (!overlay) return;
+  /* V2.11I — Selfie Challenge Bonus: update modal content if bonus is active */
+  const customer = findById(getSession());
+  const hasBonus = !!(customer && customer.bonusReward);
+  const subtitle = overlay.querySelector('.sg-reward-unlock-modal__subtitle');
+  const cardIcon  = overlay.querySelector('.sg-reward-unlock-modal__card-icon');
+  const cardValue = overlay.querySelector('.sg-reward-unlock-modal__card-value');
+  if (hasBonus) {
+    if (subtitle)  subtitle.innerHTML = 'You earned a <strong>FREE Siomai + Softdrinks!</strong><br>Show this to our staff to claim your treats. 🥤';
+    if (cardIcon)  cardIcon.textContent = '🥟🥤';
+    if (cardValue) cardValue.innerHTML  = '1 Free Siomai<br>+ 1 Free Softdrinks<br><span style="font-size:11px;opacity:0.75;">Selfie Challenge Bonus!</span>';
+  } else {
+    if (subtitle)  subtitle.innerHTML = 'You earned a <strong>FREE Siomai Reward!</strong><br>Show this to our staff to claim your treat.';
+    if (cardIcon)  cardIcon.textContent = '🥟';
+    if (cardValue) cardValue.innerHTML  = '1 Free Siomai<br>Ready to Claim';
+  }
   overlay.classList.add('is-visible');
   overlay.setAttribute('aria-hidden', 'false');
   launchConfetti();
@@ -7720,9 +7746,22 @@ document.addEventListener('DOMContentLoaded', function() {
    ================================================================ */
 function _updateRewardNotifications(rewardStatus) {
   const isUnlocked = (rewardStatus === 'unlocked');
+  /* V2.11I — check bonus flag for banner text */
+  const customer = findById(getSession());
+  const hasBonus = !!(customer && customer.bonusReward);
   /* Dashboard: Reward Ready banner */
   const banner = document.getElementById('dashRewardReadyBanner');
-  if (banner) banner.classList.toggle('is-visible', isUnlocked);
+  if (banner) {
+    banner.classList.toggle('is-visible', isUnlocked);
+    if (isUnlocked) {
+      const bannerSub = banner.querySelector('.sg-reward-ready-banner__sub');
+      if (bannerSub) {
+        bannerSub.textContent = hasBonus
+          ? 'Show your QR to staff to redeem your Free Siomai + Softdrinks! 🥤'
+          : 'Show your QR to staff to redeem your Free Siomai.';
+      }
+    }
+  }
   /* Passport card: Reward Available badge */
   const badge = document.getElementById('dashCardRewardBadge');
   if (badge) badge.classList.toggle('is-visible', isUnlocked);
@@ -9191,7 +9230,7 @@ function _resetAchievementTypeUI() {
 })();
 
 /* ================================================================
-   V2.11H — SOCIAL PLATFORM SHORTCUTS
+   V2.11J — SOCIAL PLATFORM SHORTCUTS
    Quick-access buttons for jumping straight into Facebook,
    Messenger, Instagram, or TikTok to share the achievement.
 
@@ -10029,7 +10068,7 @@ function shareToSocialPlatform(platformKey) {
       </div>
 
       <!-- ================================================================
-           V2.11H — SOCIAL PLATFORM SHORTCUTS
+           V2.11J — SOCIAL PLATFORM SHORTCUTS
            Quick-access buttons for Facebook, Messenger, Instagram, and
            TikTok. Each attempts to open the platform's app directly;
            if unavailable, falls back to the existing Native Share API
