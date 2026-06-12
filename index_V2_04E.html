@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shumai-Gosh! — Rewards Passport V2.05A</title>
+<title>Shumai-Gosh! — Rewards Passport V2.10G</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -61,6 +61,196 @@ body {
   color: var(--sg-text-dark);
   overflow-x: hidden;
 }
+
+
+
+/* ============================================================
+   V2.08D — CUSTOMER NOTIFICATION INDICATORS
+   ============================================================ */
+
+/* ── Dashboard: Reward Ready banner ── */
+.sg-reward-ready-banner {
+  display: none;
+  width: 100%;
+  align-items: center; gap: 12px;
+  background: linear-gradient(135deg, #FFF0F5, #FFE0EE);
+  border: 2px solid rgba(224,85,128,0.35);
+  border-radius: var(--sg-radius-md);
+  padding: 14px 18px;
+  margin-bottom: 4px;
+  animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.sg-reward-ready-banner.is-visible { display: flex; }
+.sg-reward-ready-banner__icon { font-size: 28px; flex-shrink: 0; }
+.sg-reward-ready-banner__text { flex: 1; }
+.sg-reward-ready-banner__title {
+  font-family: var(--sg-font-display); font-size: 16px;
+  color: var(--sg-pink-deep); line-height: 1.2; margin-bottom: 2px;
+}
+.sg-reward-ready-banner__sub {
+  font-size: 11.5px; font-weight: 700; color: var(--sg-text-mid); line-height: 1.4;
+}
+
+/* ── Passport card: Reward Available badge ── */
+.sg-card-reward-badge {
+  display: none;
+  position: absolute; top: 10px; right: 10px; z-index: 10;
+  align-items: center; gap: 4px;
+  background: linear-gradient(135deg, var(--sg-pink-deep), var(--sg-pink));
+  color: #fff;
+  font-family: var(--sg-font-body); font-size: 10px; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: var(--sg-radius-pill);
+  box-shadow: 0 3px 12px rgba(224,85,128,0.45);
+  animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+}
+.sg-card-reward-badge.is-visible { display: flex; }
+
+/* ── Profile: Reward status row ── */
+.sg-profile-reward-status {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 0 2px;
+}
+.sg-profile-reward-status__badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 5px 12px;
+  border-radius: var(--sg-radius-pill);
+}
+.sg-profile-reward-status__badge--locked {
+  background: rgba(74,33,18,0.07);
+  color: var(--sg-text-soft);
+  border: 1.5px solid rgba(74,33,18,0.12);
+}
+.sg-profile-reward-status__badge--unlocked {
+  background: linear-gradient(135deg, #FFF0F5, #FFE0EE);
+  color: var(--sg-pink-deep);
+  border: 1.5px solid rgba(224,85,128,0.35);
+}
+.sg-profile-reward-status__badge--claimed {
+  background: linear-gradient(135deg, #F0FBF6, #D8F5E8);
+  color: var(--sg-success);
+  border: 1.5px solid rgba(28,140,94,0.3);
+}
+
+/* ── Activity: rewardReady event type ── */
+.sg-activity-card__icon-wrap--rewardReady {
+  background: linear-gradient(135deg, #FFF0C0, #FFD966);
+}
+
+/* ============================================================
+   V2.08C — REWARD UNLOCK CELEBRATION MODAL
+   ============================================================ */
+.sg-reward-unlock-overlay {
+  position: fixed; inset: 0;
+  background: rgba(74,33,18,0.55);
+  backdrop-filter: blur(8px);
+  z-index: 230;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.sg-reward-unlock-overlay.is-visible { opacity: 1; pointer-events: all; }
+
+.sg-reward-unlock-modal {
+  width: 100%; max-width: 360px;
+  background: #fff;
+  border-radius: var(--sg-radius-lg); overflow: hidden;
+  box-shadow: 0 40px 100px rgba(74,33,18,0.35), 0 12px 40px rgba(224,85,128,0.3);
+  transform: scale(0.85) translateY(32px);
+  transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
+}
+.sg-reward-unlock-overlay.is-visible .sg-reward-unlock-modal {
+  transform: scale(1) translateY(0);
+}
+
+.sg-reward-unlock-modal__awning {
+  height: 10px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--sg-pink-deep) 0px, var(--sg-pink-deep) 18px,
+    rgba(255,240,245,0.9) 18px, rgba(255,240,245,0.9) 36px
+  );
+}
+
+.sg-reward-unlock-modal__body {
+  padding: 28px 24px 26px;
+  text-align: center;
+}
+
+.sg-reward-unlock-modal__burst {
+  font-size: 58px; display: block; margin-bottom: 10px;
+  animation: bounce-in 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+}
+
+.sg-reward-unlock-modal__title {
+  font-family: var(--sg-font-display); font-size: 28px; line-height: 1.1;
+  color: var(--sg-pink-deep); margin-bottom: 6px;
+}
+.sg-reward-unlock-modal__title .brown { color: var(--sg-brown); }
+
+.sg-reward-unlock-modal__subtitle {
+  font-size: 13px; font-weight: 700; color: var(--sg-text-mid);
+  line-height: 1.55; margin-bottom: 20px;
+}
+.sg-reward-unlock-modal__subtitle strong { color: var(--sg-pink-deep); }
+
+.sg-reward-unlock-modal__card {
+  background: linear-gradient(135deg, #FFF0F5, #FFE0EE);
+  border: 2px solid rgba(224,85,128,0.28);
+  border-radius: var(--sg-radius-md);
+  padding: 16px 18px; margin-bottom: 22px;
+  display: flex; align-items: center; gap: 14px; text-align: left;
+}
+.sg-reward-unlock-modal__card-icon {
+  font-size: 36px; flex-shrink: 0;
+  animation: bounce-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+}
+.sg-reward-unlock-modal__card-text { flex: 1; }
+.sg-reward-unlock-modal__card-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--sg-text-soft); margin-bottom: 3px;
+}
+.sg-reward-unlock-modal__card-value {
+  font-family: var(--sg-font-display); font-size: 17px; color: var(--sg-brown);
+  line-height: 1.2;
+}
+
+.sg-reward-unlock-modal__actions {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.sg-reward-unlock-modal__btn-primary {
+  width: 100%; height: 52px;
+  font-family: var(--sg-font-display); font-size: 18px; color: #fff;
+  background: linear-gradient(135deg, var(--sg-pink-deep), var(--sg-pink));
+  border: none; border-radius: var(--sg-radius-md); cursor: pointer;
+  box-shadow: 0 6px 22px rgba(224,85,128,0.45), inset 0 1px 0 rgba(255,255,255,0.22);
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease;
+  position: relative; overflow: hidden;
+}
+.sg-reward-unlock-modal__btn-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 55%);
+  pointer-events: none;
+}
+.sg-reward-unlock-modal__btn-primary:hover {
+  transform: translateY(-2px); box-shadow: 0 12px 30px rgba(224,85,128,0.5);
+}
+.sg-reward-unlock-modal__btn-primary:active { transform: translateY(1px); }
+
+.sg-reward-unlock-modal__btn-secondary {
+  width: 100%; height: 46px;
+  font-family: var(--sg-font-body); font-size: 14px; font-weight: 800;
+  color: var(--sg-text-mid);
+  background: rgba(255,255,255,0.8);
+  border: 1.5px solid rgba(242,132,158,0.28);
+  border-radius: var(--sg-radius-md); cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.sg-reward-unlock-modal__btn-secondary:hover {
+  background: rgba(255,255,255,0.98); transform: translateY(-1px);
+}
+.sg-reward-unlock-modal__btn-secondary:active { transform: scale(0.97); }
 
 /* ============================================================
    BACKGROUND DOTS
@@ -999,6 +1189,116 @@ body {
   .sg-stamp-slot__circle { width:48px; height:48px; }
   .sg-stamp-slot--reward .sg-stamp-slot__circle { width:60px; height:60px; }
   .sg-stamp-connector { width:12px; }
+}
+
+/* ============================================================
+   V2.09D-C — CUSTOMER CLAIM HISTORY
+   ============================================================ */
+.sg-claim-history-section {
+  width: 100%;
+  margin-bottom: 14px;
+  animation: pop-in 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+}
+
+.sg-claim-history-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 18px;
+  background: rgba(255,255,255,0.85);
+  border: 1.5px solid rgba(242,132,158,0.22);
+  border-radius: var(--sg-radius-lg);
+  box-shadow: var(--sg-shadow-soft);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  font-family: var(--sg-font-body);
+}
+.sg-claim-history-toggle:hover {
+  background: rgba(255,255,255,0.97);
+  transform: translateY(-1px);
+}
+.sg-claim-history-toggle:active { transform: translateY(1px); }
+
+.sg-claim-history-toggle__left {
+  display: flex; align-items: center; gap: 9px;
+}
+.sg-claim-history-toggle__icon { font-size: 16px; }
+.sg-claim-history-toggle__label {
+  font-family: var(--sg-font-display); font-size: 15px;
+  color: var(--sg-pink-deep); letter-spacing: 0.02em;
+}
+.sg-claim-history-toggle__chevron {
+  font-size: 13px; font-weight: 800;
+  color: var(--sg-text-soft);
+  transition: transform 0.22s ease;
+}
+.sg-claim-history-toggle[aria-expanded="true"] .sg-claim-history-toggle__chevron {
+  transform: rotate(180deg);
+}
+
+.sg-claim-history-panel {
+  display: none;
+  background: rgba(255,255,255,0.85);
+  border: 1.5px solid rgba(242,132,158,0.22);
+  border-top: none;
+  border-radius: 0 0 var(--sg-radius-lg) var(--sg-radius-lg);
+  box-shadow: var(--sg-shadow-soft);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+.sg-claim-history-panel.is-open { display: block; }
+
+/* adjust toggle border-radius when panel is open */
+.sg-claim-history-toggle[aria-expanded="true"] {
+  border-radius: var(--sg-radius-lg) var(--sg-radius-lg) 0 0;
+  border-bottom-color: rgba(242,132,158,0.1);
+}
+
+.sg-claim-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(242,132,158,0.1);
+  transition: background 0.12s ease;
+}
+.sg-claim-item:last-child { border-bottom: none; }
+.sg-claim-item:hover { background: rgba(255,240,248,0.5); }
+
+.sg-claim-item__icon {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #FFF0F5, #FFE0EE);
+  border: 1.5px solid rgba(224,85,128,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+.sg-claim-item__body { flex: 1; min-width: 0; }
+.sg-claim-item__type {
+  font-size: 13px; font-weight: 800; color: var(--sg-text-dark);
+  line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sg-claim-item__date {
+  font-size: 10.5px; font-weight: 700;
+  color: var(--sg-text-soft); margin-top: 2px; line-height: 1.4;
+}
+.sg-claim-item__time-col {
+  font-size: 9.5px; font-weight: 800; text-align: right;
+  color: var(--sg-text-soft); flex-shrink: 0; line-height: 1.4;
+  white-space: nowrap;
+}
+
+.sg-claim-history-empty {
+  padding: 28px 18px; text-align: center;
+}
+.sg-claim-history-empty__icon { font-size: 32px; display: block; margin-bottom: 8px; }
+.sg-claim-history-empty__title {
+  font-family: var(--sg-font-display); font-size: 16px;
+  color: var(--sg-text-mid); margin-bottom: 4px;
+}
+.sg-claim-history-empty__sub {
+  font-size: 12px; font-weight: 700; color: var(--sg-text-soft); line-height: 1.5;
+}
+.sg-claim-history-loading {
+  padding: 22px 18px; text-align: center;
+  font-size: 12px; font-weight: 700; color: var(--sg-text-soft);
 }
 
 /* ============================================================
@@ -2265,6 +2565,265 @@ body {
 }
 .sg-activity-empty__msg { font-size: 13px; color: var(--sg-text-soft); }
 
+/* ============================================================
+   V2.10A — SELFIE CHALLENGE SECTION (Passport Page)
+   ============================================================ */
+.sg-selfie-section {
+  width: 100%;
+  background: rgba(255,255,255,0.85);
+  border: 1.5px solid rgba(242,132,158,0.22);
+  border-radius: var(--sg-radius-lg);
+  box-shadow: var(--sg-shadow-soft);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  margin-bottom: 14px;
+  animation: pop-in 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.36s both;
+}
+
+.sg-selfie-section__header {
+  display: flex; align-items: center; gap: 9px;
+  padding: 13px 18px 11px;
+  background: linear-gradient(90deg, rgba(255,240,245,0.9), rgba(255,245,250,0.7));
+  border-bottom: 1.5px solid rgba(242,132,158,0.15);
+}
+.sg-selfie-section__header-icon { font-size: 16px; }
+.sg-selfie-section__title {
+  font-family: var(--sg-font-display); font-size: 15px;
+  color: var(--sg-pink-deep); letter-spacing: 0.02em;
+}
+
+.sg-selfie-section__body {
+  padding: 22px 20px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+
+/* ── Empty state ── */
+.sg-selfie-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; text-align: center;
+}
+.sg-selfie-empty__icon {
+  width: 76px; height: 76px; border-radius: 50%;
+  background: linear-gradient(145deg, #FFE8F0, #FFD0E6);
+  border: 2.5px dashed rgba(224,85,128,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+}
+.sg-selfie-empty__title {
+  font-family: var(--sg-font-display); font-size: 16px;
+  color: var(--sg-brown); line-height: 1.2;
+}
+.sg-selfie-empty__sub {
+  font-size: 12px; font-weight: 700;
+  color: var(--sg-text-soft); line-height: 1.5;
+  max-width: 240px;
+}
+
+/* ── Add Selfie button ── */
+.sg-selfie-add-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--sg-font-body); font-size: 14px; font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--sg-pink-deep), var(--sg-pink));
+  border: none; border-radius: var(--sg-radius-pill);
+  padding: 11px 26px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(224,85,128,0.38), inset 0 1px 0 rgba(255,255,255,0.22);
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease;
+  position: relative; overflow: hidden;
+}
+.sg-selfie-add-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.sg-selfie-add-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(224,85,128,0.5);
+}
+.sg-selfie-add-btn:active { transform: translateY(1px) scale(0.98); }
+.sg-selfie-add-btn__icon { font-size: 16px; line-height: 1; }
+
+/* ============================================================
+   V2.10G — SELFIE SAVE & DISPLAY
+   ============================================================ */
+
+/* ── Selfie photo display card ── */
+.sg-selfie-photo-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  width: 100%;
+}
+
+.sg-selfie-photo-frame {
+  width: 140px; height: 140px; border-radius: 50%;
+  overflow: hidden;
+  border: 3.5px solid rgba(242,132,158,0.55);
+  box-shadow:
+    0 0 0 5px rgba(242,132,158,0.14),
+    0 8px 28px rgba(224,85,128,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+  background: linear-gradient(145deg, #FFE8F0, #FFD0E6);
+  flex-shrink: 0;
+  animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.sg-selfie-photo-frame img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+
+.sg-selfie-photo-label {
+  font-family: var(--sg-font-display); font-size: 15px;
+  color: var(--sg-brown); letter-spacing: 0.01em; text-align: center;
+}
+.sg-selfie-photo-sub {
+  font-size: 11.5px; font-weight: 700;
+  color: var(--sg-text-soft); text-align: center; line-height: 1.45;
+}
+
+/* ── Change Selfie button ── */
+.sg-selfie-change-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--sg-font-body); font-size: 13px; font-weight: 800;
+  color: var(--sg-pink-deep);
+  background: rgba(255,255,255,0.75);
+  border: 1.5px solid rgba(224,85,128,0.35);
+  border-radius: var(--sg-radius-pill);
+  padding: 9px 22px; cursor: pointer;
+  box-shadow: 0 2px 10px rgba(224,85,128,0.12);
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1),
+              background 0.15s ease, box-shadow 0.15s ease;
+}
+.sg-selfie-change-btn:hover {
+  background: rgba(255,240,248,0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(224,85,128,0.22);
+}
+.sg-selfie-change-btn:active { transform: scale(0.97); }
+
+/* ── Selfie success banner ── */
+.sg-selfie-success {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%;
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  border: 1.5px solid #b1dfbb;
+  border-radius: var(--sg-radius-md);
+  padding: 12px 18px;
+  font-size: 13px; font-weight: 700; color: #155724;
+  opacity: 0; transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.sg-selfie-success.is-visible { opacity: 1; transform: translateY(0); }
+
+/* ============================================================
+   V2.10E — SELFIE CROPPER
+   Fullscreen overlay. Pure canvas. 1:1 square crop.
+   Touch: pan + pinch-zoom. Mouse: drag + wheel-zoom.
+   z-index 600 — sits above gallery (500) and camera (500).
+   ============================================================ */
+
+/* ── Overlay shell ── */
+.sg-scrop-overlay {
+  position: fixed; inset: 0; z-index: 600;
+  background: #000;
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+.sg-scrop-overlay.is-visible { opacity: 1; pointer-events: all; }
+
+/* ── Top bar ── */
+.sg-scrop-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(0,0,0,0.6);
+  flex-shrink: 0;
+  gap: 12px;
+}
+.sg-scrop-topbar__title {
+  font-family: var(--sg-font-display); font-size: 18px;
+  color: #fff; letter-spacing: 0.02em; flex: 1;
+}
+.sg-scrop-topbar__close {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); border: none; color: #fff;
+  font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease; flex-shrink: 0;
+}
+.sg-scrop-topbar__close:hover { background: rgba(255,255,255,0.28); }
+
+/* ── Canvas viewport — fills remaining height between topbar and controls ── */
+.sg-scrop-viewport {
+  flex: 1; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: #111; touch-action: none;
+}
+.sg-scrop-canvas {
+  display: block;
+  /* canvas sized by JS to fill viewport — no CSS sizing override */
+}
+
+/* ── Hint label ── */
+.sg-scrop-hint {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.52); color: rgba(255,255,255,0.78);
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em;
+  padding: 5px 14px; border-radius: var(--sg-radius-pill);
+  pointer-events: none; white-space: nowrap;
+}
+
+/* ── Bottom controls ── */
+.sg-scrop-controls {
+  background: rgba(0,0,0,0.72);
+  padding: 20px 20px 36px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Zoom slider row */
+.sg-scrop-zoom-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; max-width: 320px;
+}
+.sg-scrop-zoom-icon { font-size: 16px; color: rgba(255,255,255,0.6); flex-shrink: 0; }
+.sg-scrop-zoom-slider {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; height: 4px; border-radius: 2px; outline: none; cursor: pointer;
+  background: linear-gradient(90deg, var(--sg-pink) 0%, var(--sg-pink) var(--scrop-pct,0%), rgba(255,255,255,0.2) var(--scrop-pct,0%), rgba(255,255,255,0.2) 100%);
+}
+.sg-scrop-zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  cursor: pointer;
+}
+.sg-scrop-zoom-slider::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%; border: none;
+  background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.4); cursor: pointer;
+}
+
+/* Action buttons row */
+.sg-scrop-btn-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; max-width: 320px;
+}
+.sg-scrop-btn {
+  flex: 1; height: 52px;
+  font-family: var(--sg-font-display); font-size: 17px;
+  border: none; border-radius: var(--sg-radius-md); cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.sg-scrop-btn:active { transform: scale(0.97); }
+.sg-scrop-btn--cancel {
+  background: rgba(255,255,255,0.14); color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.3);
+}
+.sg-scrop-btn--cancel:hover { background: rgba(255,255,255,0.22); }
+.sg-scrop-btn--confirm {
+  background: linear-gradient(135deg, var(--sg-pink-deep), var(--sg-pink));
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(224,85,128,0.5);
+}
+.sg-scrop-btn--confirm:hover { opacity: 0.9; }
+
 </style>
 </head>
 <body>
@@ -2587,6 +3146,10 @@ body {
     <div class="sg-passport-3d" id="dashPassport3d">
       <div class="sg-card-face">
         <div class="sg-card-awning" aria-hidden="true"></div>
+        <!-- V2.08D: Reward Available badge — shown when rewardState = UNLOCKED -->
+        <div class="sg-card-reward-badge" id="dashCardRewardBadge" aria-label="Reward available">
+          <span aria-hidden="true">🎁</span> Reward Available
+        </div>
         <div class="sg-card-body">
           <div class="sg-card-mascot" id="dashCardMascot">
             <svg class="sg-mascot-svg" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -2718,6 +3281,15 @@ body {
   <!-- Progress / Next Reward card -->
   <div class="sg-dash-progress" role="region" aria-label="Your next reward">
     <p class="sg-dash-progress__label">✦ Your Next Reward ✦</p>
+    <!-- V2.08D: Reward Ready banner — shown when rewardState = UNLOCKED -->
+    <div class="sg-reward-ready-banner" id="dashRewardReadyBanner" role="status" aria-live="polite" aria-atomic="true">
+      <span class="sg-reward-ready-banner__icon" aria-hidden="true">🎁</span>
+      <div class="sg-reward-ready-banner__text">
+        <div class="sg-reward-ready-banner__title">Reward Ready To Claim!</div>
+        <div class="sg-reward-ready-banner__sub">Show your QR to staff to redeem your Free Siomai.</div>
+      </div>
+    </div>
+
     <div class="sg-reward-card">
       <div class="sg-reward-card__icon" aria-hidden="true">
         🎁
@@ -2784,6 +3356,24 @@ body {
       </div>
     </div>
   </section>
+
+  <!-- V2.10A: Selfie Challenge Section -->
+  <section class="sg-selfie-section" id="sgSelfieSection" aria-labelledby="sgSelfieTitle" role="region">
+    <div class="sg-selfie-section__header">
+      <span class="sg-selfie-section__header-icon" aria-hidden="true">🤳</span>
+      <span class="sg-selfie-section__title" id="sgSelfieTitle">Selfie Challenge</span>
+    </div>
+    <div class="sg-selfie-section__body" id="sgSelfieBody">
+      <!-- Populated by renderSelfieSection() -->
+    </div>
+  </section>
+
+  <!-- V2.10G: Selfie save success banner -->
+  <div class="sg-selfie-success" id="sgSelfieSuccess"
+    role="status" aria-live="polite" aria-atomic="true">
+    <span aria-hidden="true">✅</span>
+    <span>Selfie Uploaded Successfully</span>
+  </div>
 
   <div class="sg-dash-footer">
     <p class="sg-dash-footer__tagline">✦ Shumai-Gosh! Rewards ✦</p>
@@ -2987,8 +3577,34 @@ body {
           <span class="sg-profile-row__value sg-profile-row__value--big" id="profileRewardsClaimed">0</span>
         </div>
       </div>
+      <!-- V2.08D: Reward status indicator -->
+      <div class="sg-profile-reward-status" id="profileRewardStatusRow" aria-live="polite" aria-atomic="true">
+        <span class="sg-profile-row__label">Reward Status</span>
+        <span class="sg-profile-reward-status__badge sg-profile-reward-status__badge--locked" id="profileRewardStateBadge">
+          🔒 Locked
+        </span>
+      </div>
     </div>
   </section>
+
+  <!-- ── V2.09D-C: Claim History section ── -->
+  <div class="sg-claim-history-section" id="sgClaimHistorySection">
+    <button class="sg-claim-history-toggle" type="button"
+      id="sgClaimHistoryToggle"
+      aria-expanded="false"
+      aria-controls="sgClaimHistoryPanel"
+      onclick="toggleCustomerClaimHistory()"
+      aria-label="Toggle claim history">
+      <div class="sg-claim-history-toggle__left">
+        <span class="sg-claim-history-toggle__icon" aria-hidden="true">🎁</span>
+        <span class="sg-claim-history-toggle__label">Claim History</span>
+      </div>
+      <span class="sg-claim-history-toggle__chevron" aria-hidden="true">▼</span>
+    </button>
+    <div class="sg-claim-history-panel" id="sgClaimHistoryPanel" role="list" aria-label="Claim history">
+      <div class="sg-claim-history-loading" id="sgClaimHistoryList">⏳ Loading…</div>
+    </div>
+  </div>
 
   <!-- ── V2.02H: Activity History button ── -->
   <button class="sg-activity-btn" type="button" onclick="openActivityHistory()" aria-label="View your activity history">
@@ -3451,10 +4067,24 @@ async function _fetchPassport(customerId) {
 }
 
 function _buildPassport(customer) {
-  return { passportNumber: customer.passportNumber||('PASS-'+customer.customerId.replace('SG-','')),
-    customerId: customer.customerId, currentStamps: customer.stamps||0,
-    rewardStatus: customer.rewardStatus||'locked', claimedRewards: customer.claimedRewards||0,
-    activityHistory:[], updatedAt: new Date().toISOString() };
+  const stamps   = customer.stamps         || 0;
+  const claimed  = customer.rewardsClaimed || customer.claimedRewards || 0;
+  const state    = _normaliseRewardState(customer.rewardState || customer.rewardStatus)
+                   || _deriveRewardState(stamps, claimed);
+  return {
+    passportNumber:  customer.passportNumber || ('PASS-' + customer.customerId.replace('SG-','')),
+    customerId:      customer.customerId,
+    currentStamps:   stamps,
+    claimedRewards:  claimed,
+    /* V2.08B: formal state field — LOCKED | UNLOCKED | CLAIMED */
+    rewardState:     state,
+    /* Legacy field retained for backward-compat */
+    rewardStatus:    state.toLowerCase(),
+    rewardUnlockedAt: customer.rewardUnlockedAt || null,
+    rewardClaimedAt:  customer.rewardClaimedAt  || null,
+    activityHistory: [],
+    updatedAt:       new Date().toISOString()
+  };
 }
 function loadPassport(customerId) {
   const all=_loadPassports(); if(all[customerId]) return all[customerId];
@@ -3467,17 +4097,224 @@ function savePassport(passport) {
   const all=_loadPassports(); all[passport.customerId]=passport; _savePassports(all);
   _syncPassport(passport).catch(()=>{});
 }
-function _deriveRewardStatus(stamps, claimed) {
-  const earned=Math.floor(stamps/5); if(earned>(claimed||0)) return 'unlocked';
-  if(stamps>=5) return 'unlocked'; return 'locked';
+/* ================================================================
+   V2.08B — REWARD STATE ENGINE
+   Valid states: LOCKED | UNLOCKED | CLAIMED
+   Flow: 0-4 stamps → LOCKED
+         5 stamps   → UNLOCKED
+         Redeemed   → CLAIMED
+   Backward-compatible: maps legacy rewardStatus values to new states.
+   ================================================================ */
+const REWARD_STATE = Object.freeze({
+  LOCKED:   'LOCKED',
+  UNLOCKED: 'UNLOCKED',
+  CLAIMED:  'CLAIMED'
+});
+
+/* ── Canonical state derivation ── */
+function _deriveRewardState(stamps, claimedRewards) {
+  const s = stamps        || 0;
+  const c = claimedRewards|| 0;
+  const earned = Math.floor(s / 5);
+  if (earned > c) return REWARD_STATE.UNLOCKED;
+  return REWARD_STATE.LOCKED;
 }
+
+/* ── Backward-compat shim: old string → new state constant ── */
+function _normaliseRewardState(raw) {
+  if (!raw) return null;
+  const u = String(raw).toUpperCase();
+  if (u === 'UNLOCKED' || u === 'unlocked') return REWARD_STATE.UNLOCKED;
+  if (u === 'CLAIMED'  || u === 'claimed')  return REWARD_STATE.CLAIMED;
+  if (u === 'LOCKED'   || u === 'locked')   return REWARD_STATE.LOCKED;
+  return null;
+}
+
+/* ── Legacy alias kept for any residual callers ── */
+function _deriveRewardStatus(stamps, claimed) {
+  const state = _deriveRewardState(stamps, claimed);
+  /* Return lowercase for backward-compat with existing UI checks */
+  return state.toLowerCase();
+}
+
+/* ================================================================
+   V2.09C — REWARD STATE INTEGRITY ENGINE (Customer App)
+   Detects illegal reward state combinations, auto-corrects them,
+   and writes every correction to Firebase for the audit trail.
+
+   Rules enforced:
+     R1  State must be one of: LOCKED | UNLOCKED | CLAIMED
+     R2  UNLOCKED and CLAIMED cannot coexist simultaneously
+     R3  State must be consistent with stamps/rewardsClaimed counters
+     R4  Counters must be non-negative integers
+     R5  State cannot skip: LOCKED→CLAIMED without passing UNLOCKED
+         (detected as CLAIMED with stamps still ≥ 5 and no cycle reset)
+     R6  Legacy rewardStatus field must match canonical rewardState
+
+   Self-healing priority (highest→lowest):
+     - CLAIMED takes precedence when rewardsClaimed just incremented
+     - Otherwise derive canonically from stamps + rewardsClaimed
+   ================================================================ */
+
+/**
+ * _sgAuditStateCorrection(customerId, before, after, reason)
+ * Persists a correction record to Firebase rewardStateCorrections/.
+ * Silent — never throws or blocks normal operations.
+ */
+async function _sgAuditStateCorrection(customerId, before, after, reason) {
+  try {
+    const corrId = 'RSC-' + Date.now() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+    const record = {
+      corrId,
+      customerId,
+      timestamp:    new Date().toISOString(),
+      stateBefore:  before,
+      stateAfter:   after,
+      reason,
+      source:       'customer-app'
+    };
+    await SG_BACKEND.set('rewardStateCorrections:' + corrId, record);
+    console.info('[V2.09C] State correction logged:', corrId, reason);
+  } catch (e) {
+    /* Silent — audit must never block normal operations */
+    console.warn('[V2.09C] Failed to write state correction audit:', e);
+  }
+}
+
+/**
+ * _sgVerifyRewardIntegrity(customer)
+ * Inspects a customer record for any illegal reward state.
+ * Mutates the object in-place if a correction is needed.
+ *
+ * Returns: { corrected: boolean, reason: string|null }
+ *
+ * Call this:
+ *   - After every load from local cache or Firebase (mergePassportIntoCustomer)
+ *   - After every state-transition write (awardStamp, claimReward, persistPassport)
+ *   - Inside the real-time listener before applying remote data
+ */
+function _sgVerifyRewardIntegrity(customer) {
+  if (!customer || !customer.customerId) return { corrected: false, reason: null };
+
+  const stamps  = customer.stamps        || 0;
+  const claimed = customer.rewardsClaimed || 0;
+
+  /* Snapshot before — for audit */
+  const stateBefore = {
+    rewardState:  customer.rewardState,
+    rewardStatus: customer.rewardStatus,
+    stamps,
+    rewardsClaimed: claimed
+  };
+
+  let corrected = false;
+  const reasons = [];
+
+  /* ── R4: Counters must be non-negative integers ── */
+  if (!Number.isInteger(stamps) || stamps < 0) {
+    customer.stamps = 0;
+    reasons.push('R4: stamps was not a non-negative integer (' + stamps + '), reset to 0');
+    corrected = true;
+  }
+  if (!Number.isInteger(claimed) || claimed < 0) {
+    customer.rewardsClaimed = 0;
+    reasons.push('R4: rewardsClaimed was not a non-negative integer (' + claimed + '), reset to 0');
+    corrected = true;
+  }
+
+  /* Work with corrected values from here */
+  const s = customer.stamps;
+  const c = customer.rewardsClaimed;
+
+  /* ── R1: Normalise raw state value ── */
+  const rawState = _normaliseRewardState(customer.rewardState || customer.rewardStatus);
+
+  /* ── R3: Derive the canonically correct state ── */
+  const canonical = _deriveRewardState(s, c);
+
+  /* ── R2 + R5: Detect illegal simultaneous UNLOCKED+CLAIMED.
+     If the stored state is CLAIMED but canonical derivation says UNLOCKED,
+     the most recent transition was a claim (stamps were reset to s%5).
+     Trust CLAIMED if rewardsClaimed > 0 and the stamp reset is consistent. ── */
+  let correctedState = rawState;
+
+  if (rawState === REWARD_STATE.UNLOCKED && canonical === REWARD_STATE.LOCKED) {
+    /* Stored UNLOCKED but stamps/claimed don't support it → derive correctly */
+    correctedState = canonical;
+    reasons.push('R2/R3: stored UNLOCKED but stamps/claimed derive to LOCKED (stamps=' + s + ', claimed=' + c + ')');
+    corrected = true;
+  } else if (rawState === REWARD_STATE.CLAIMED && canonical === REWARD_STATE.UNLOCKED) {
+    /* CLAIMED and UNLOCKED simultaneously → illegal (R2).
+       Stamps haven't reset yet — treat the claim as the authority, reset stamps. */
+    customer.stamps = s % 5;
+    customer.rewardsClaimed = c; /* already incremented */
+    correctedState = REWARD_STATE.CLAIMED;
+    reasons.push('R2: CLAIMED+UNLOCKED coexistence — stamps reset from ' + s + ' to ' + (s % 5));
+    corrected = true;
+  } else if (!rawState) {
+    /* R1: No valid state stored at all — derive it */
+    correctedState = canonical;
+    reasons.push('R1: rewardState was absent or invalid, derived from stamps/claimed');
+    corrected = true;
+  } else if (rawState !== canonical && rawState !== REWARD_STATE.CLAIMED) {
+    /* R3: State is inconsistent with counters and not CLAIMED (CLAIMED may validly
+       differ from derivation if stamps have already been reset) */
+    correctedState = canonical;
+    reasons.push('R3: stored state "' + rawState + '" inconsistent with derived "' + canonical + '"');
+    corrected = true;
+  }
+
+  /* ── R6: Keep legacy rewardStatus in sync with corrected canonical state ── */
+  const expectedStatus = correctedState ? correctedState.toLowerCase() : canonical.toLowerCase();
+  if (customer.rewardStatus !== expectedStatus) {
+    reasons.push('R6: rewardStatus "' + customer.rewardStatus + '" out of sync with rewardState "' + correctedState + '"');
+    corrected = true;
+  }
+
+  /* Apply corrections */
+  if (corrected) {
+    customer.rewardState  = correctedState || canonical;
+    customer.rewardStatus = customer.rewardState.toLowerCase();
+
+    const stateAfter = {
+      rewardState:  customer.rewardState,
+      rewardStatus: customer.rewardStatus,
+      stamps:       customer.stamps,
+      rewardsClaimed: customer.rewardsClaimed
+    };
+
+    /* Fire-and-forget audit write */
+    _sgAuditStateCorrection(
+      customer.customerId,
+      stateBefore,
+      stateAfter,
+      reasons.join('; ')
+    );
+  }
+
+  return { corrected, reason: reasons.length ? reasons.join('; ') : null };
+}
+
 function persistPassport(customerId) {
-  const customer=findById(customerId); if(!customer) return;
-  const existing=loadPassport(customerId)||_buildPassport(customer);
-  existing.passportNumber=customer.passportNumber||existing.passportNumber;
-  existing.currentStamps =customer.stamps||0;
-  existing.claimedRewards=customer.rewardsClaimed||customer.claimedRewards||0;
-  existing.rewardStatus  =_deriveRewardStatus(existing.currentStamps,existing.claimedRewards);
+  const customer = findById(customerId); if (!customer) return;
+  const existing = loadPassport(customerId) || _buildPassport(customer);
+  existing.passportNumber = customer.passportNumber || existing.passportNumber;
+  existing.currentStamps  = customer.stamps || 0;
+  existing.claimedRewards = customer.rewardsClaimed || customer.claimedRewards || 0;
+  /* V2.08B: derive canonical state; keep legacy rewardStatus in sync */
+  /* V2.09C: respect CLAIMED — don't overwrite it with a re-derivation that
+     would produce LOCKED (stamps have already been reset to s%5 after a claim) */
+  const storedState = _normaliseRewardState(customer.rewardState);
+  const state = (storedState === REWARD_STATE.CLAIMED)
+    ? REWARD_STATE.CLAIMED
+    : _deriveRewardState(existing.currentStamps, existing.claimedRewards);
+  existing.rewardState  = state;
+  existing.rewardStatus = state.toLowerCase();          // backward-compat
+  /* V2.08A/B: completion-detection timestamps */
+  if (customer.rewardUnlockedAt !== undefined) existing.rewardUnlockedAt = customer.rewardUnlockedAt;
+  if (customer.rewardClaimedAt  !== undefined) existing.rewardClaimedAt  = customer.rewardClaimedAt;
+  /* V2.08A: rewardReady flag */
+  if (customer.rewardReady      !== undefined) existing.rewardReady      = customer.rewardReady;
   savePassport(existing);
 }
 
@@ -3490,6 +4327,8 @@ const ACTIVITY_CONFIG = {
   stamp:          { icon: '🥟', cls: 'stamp' },
   rewardUnlocked: { icon: '🎁', cls: 'rewardUnlocked' },
   rewardClaimed:  { icon: '✅', cls: 'rewardClaimed' },
+  /* V2.08D: notification event types */
+  rewardReady:    { icon: '🌟', cls: 'rewardReady'    },
 };
 
 function loadActivityLog() { return _cacheGet(CACHE_ACTIVITY)||_cacheGet(STORE_ACTIVITY)||[]; }
@@ -3581,21 +4420,47 @@ function autoSave(customerId) {
 /* ================================================================
    STAMP & REWARD FUNCTIONS
    ================================================================ */
+/* ── V2.08A — Completion Detection ──────────────────────────────
+   Rule: every 5 stamps = 1 Free Siomai Reward.
+   Trigger: currentStamps > 0 AND currentStamps % 5 === 0
+   On detection:
+     • customer.rewardReady       = true
+     • customer.rewardUnlockedAt  = ISO timestamp
+   Activity: "Reward Unlocked" entry added to history log.
+   ─────────────────────────────────────────────────────────────── */
 function awardStamp(customerId) {
   const all=loadCustomers(); const idx=all.findIndex(c=>c.customerId===customerId); if(idx===-1)return null;
   all[idx].stamps=(all[idx].stamps||0)+1;
-  const n=all[idx].stamps; const cycleCompleted=(n%5===0);
+  const n=all[idx].stamps; const cycleCompleted=(n>0 && n%5===0);
+  /* V2.08A: detect completed reward cycle and stamp fields onto customer record */
+  if(cycleCompleted){
+    all[idx].rewardReady      = true;
+    all[idx].rewardUnlockedAt = new Date().toISOString();
+  }
+  /* V2.09C — Integrity check after stamp award */
+  _sgVerifyRewardIntegrity(all[idx]);
   saveCustomers(all);
   logActivity(customerId,'stamp',`Stamp #${n} Collected 🥟`,`You've collected ${n} stamp${n!==1?'s':''} on your passport.`);
-  if(cycleCompleted) logActivity(customerId,'rewardUnlocked','Free Shumai Reward Unlocked! 🎁',`Congratulations! You've earned a free Shumai reward. Visit us to claim it.`);
+  if(cycleCompleted) logActivity(customerId,'rewardUnlocked','Reward Unlocked 🎁',`Congratulations! You've earned a Free Siomai Reward. Visit us to claim it.`);
   autoSave(customerId); return all[idx];
 }
 function claimReward(customerId) {
-  const all=loadCustomers(); const idx=all.findIndex(c=>c.customerId===customerId); if(idx===-1)return null;
-  const passport=loadPassport(customerId); if(!passport||passport.rewardStatus!=='unlocked')return null;
-  all[idx].stamps=(all[idx].stamps||0)%5; all[idx].rewardsClaimed=(all[idx].rewardsClaimed||0)+1;
+  const all = loadCustomers(); const idx = all.findIndex(c => c.customerId === customerId); if (idx === -1) return null;
+  const passport = loadPassport(customerId);
+  /* V2.08B: gate on formal UNLOCKED state; retain legacy 'unlocked' check for backward-compat */
+  const currentState = _normaliseRewardState(passport && (passport.rewardState || passport.rewardStatus));
+  if (!passport || currentState !== REWARD_STATE.UNLOCKED) return null;
+  const claimedAt = new Date().toISOString();
+  all[idx].stamps         = (all[idx].stamps || 0) % 5;
+  all[idx].rewardsClaimed = (all[idx].rewardsClaimed || 0) + 1;
+  /* V2.08B: write CLAIMED state + timestamp onto customer record */
+  all[idx].rewardState     = REWARD_STATE.CLAIMED;
+  all[idx].rewardClaimedAt = claimedAt;
+  all[idx].rewardReady     = false;
+  /* V2.09C — Integrity check: verify CLAIMED state is consistent */
+  _sgVerifyRewardIntegrity(all[idx]);
   saveCustomers(all);
-  logActivity(customerId,'rewardClaimed','Free Shumai Reward Claimed! ✅',`Reward #${all[idx].rewardsClaimed} claimed. Enjoy your Shumai!`);
+  logActivity(customerId, 'rewardClaimed', 'Free Siomai Reward Claimed! ✅', `Reward #${all[idx].rewardsClaimed} claimed. Enjoy your Siomai!`);
   autoSave(customerId); return all[idx];
 }
 
@@ -3603,21 +4468,39 @@ function claimReward(customerId) {
    V2.04A — LOGIN RESTORE ENGINE
    ================================================================ */
 function mergePassportIntoCustomer(customerId) {
-  const passport=loadPassport(customerId); const all=loadCustomers();
-  const idx=all.findIndex(c=>c.customerId===customerId); if(idx===-1)return null;
-  let dirty=false;
-  if(passport){
-    const ps=passport.currentStamps||0,cs=all[idx].stamps||0;
-    if(ps>=cs&&all[idx].stamps!==ps){all[idx].stamps=ps;dirty=true;}
-    const pc=passport.claimedRewards||0,cc=all[idx].rewardsClaimed||0;
-    if(pc>=cc&&all[idx].rewardsClaimed!==pc){all[idx].rewardsClaimed=pc;dirty=true;}
-    const ds=_deriveRewardStatus(all[idx].stamps,all[idx].rewardsClaimed);
-    if(all[idx].rewardStatus!==ds){all[idx].rewardStatus=ds;dirty=true;}
+  const passport = loadPassport(customerId); const all = loadCustomers();
+  const idx = all.findIndex(c => c.customerId === customerId); if (idx === -1) return null;
+  let dirty = false;
+  if (passport) {
+    const ps = passport.currentStamps  || 0, cs = all[idx].stamps         || 0;
+    const pc = passport.claimedRewards || 0, cc = all[idx].rewardsClaimed || 0;
+    if (ps >= cs && all[idx].stamps         !== ps) { all[idx].stamps         = ps; dirty = true; }
+    if (pc >= cc && all[idx].rewardsClaimed !== pc) { all[idx].rewardsClaimed = pc; dirty = true; }
+    /* V2.08B: sync formal rewardState; fall back to derivation if passport lacks it */
+    const passportState = _normaliseRewardState(passport.rewardState || passport.rewardStatus)
+                          || _deriveRewardState(all[idx].stamps, all[idx].rewardsClaimed);
+    if (all[idx].rewardState  !== passportState)              { all[idx].rewardState  = passportState;           dirty = true; }
+    if (all[idx].rewardStatus !== passportState.toLowerCase()){ all[idx].rewardStatus = passportState.toLowerCase(); dirty = true; }
+    /* V2.08B: carry timestamps forward if passport has them */
+    if (passport.rewardUnlockedAt && !all[idx].rewardUnlockedAt) { all[idx].rewardUnlockedAt = passport.rewardUnlockedAt; dirty = true; }
+    if (passport.rewardClaimedAt  && !all[idx].rewardClaimedAt)  { all[idx].rewardClaimedAt  = passport.rewardClaimedAt;  dirty = true; }
   } else {
-    const ds=_deriveRewardStatus(all[idx].stamps||0,all[idx].rewardsClaimed||0);
-    if(all[idx].rewardStatus!==ds){all[idx].rewardStatus=ds;dirty=true;}
+    const state = _deriveRewardState(all[idx].stamps || 0, all[idx].rewardsClaimed || 0);
+    if (all[idx].rewardState  !== state)              { all[idx].rewardState  = state;              dirty = true; }
+    if (all[idx].rewardStatus !== state.toLowerCase()){ all[idx].rewardStatus = state.toLowerCase(); dirty = true; }
   }
-  if(dirty) _cacheSet(CACHE_CUSTOMERS,all);
+  if (dirty) _cacheSet(CACHE_CUSTOMERS, all);
+
+  /* V2.09C — Integrity check: verify state is consistent after merge.
+     Any corrections are applied in-place and written back to cache + Firebase. */
+  const integ = _sgVerifyRewardIntegrity(all[idx]);
+  if (integ.corrected) {
+    const updated = loadCustomers();
+    updated[idx] = all[idx];
+    _cacheSet(CACHE_CUSTOMERS, updated);
+    _syncCustomer(all[idx]).catch(() => {});
+  }
+
   return all[idx];
 }
 
@@ -3701,11 +4584,26 @@ function startRealtimeListener(customerId) {
       const idx = all.findIndex(c => c.customerId === _rtCustomerId);
       if (idx >= 0) { all[idx] = { ...all[idx], ...remote }; }
       else          { all.push(remote); }
+
+      /* V2.09C — Validate incoming remote state before applying to local cache.
+         Prevents a corrupted or tampered Firebase record from poisoning local state. */
+      const rtIdx = idx >= 0 ? idx : all.length - 1;
+      _sgVerifyRewardIntegrity(all[rtIdx]);
+
       _cacheSet(CACHE_CUSTOMERS, all);
       const dash = document.getElementById('viewDashboard');
+      /* V2.08C: detect LOCKED→UNLOCKED transition for celebration */
+      const prevState = cached ? (_normaliseRewardState(cached.rewardState || cached.rewardStatus) || REWARD_STATE.LOCKED) : REWARD_STATE.LOCKED;
+      const nextState = _normaliseRewardState((all[idx] || remote).rewardState || (all[idx] || remote).rewardStatus) || REWARD_STATE.LOCKED;
+      const rewardJustUnlocked = (prevState !== REWARD_STATE.UNLOCKED && nextState === REWARD_STATE.UNLOCKED);
       if (dash && dash.classList.contains('is-active')) {
         populateDashboard(all[idx] || remote);
-        _showStampUpdateToast();
+        if (rewardJustUnlocked) {
+          /* Slight delay so dashboard renders first */
+          setTimeout(showRewardUnlockModal, 400);
+        } else {
+          _showStampUpdateToast();
+        }
       }
     });
     _rtListener = { ref, handler };
@@ -3774,8 +4672,12 @@ function populateDashboard(customer) {
   const ctaEl=document.getElementById('dashRewardCta'),lockEl=document.querySelector('.sg-reward-card__lock'),card3d=document.getElementById('dashPassport3d');
   if(rewardStatus==='unlocked'){if(ctaEl)ctaEl.textContent='🎁  Claim Your Free Shumai!';if(lockEl)lockEl.textContent='🎁';if(card3d)card3d.classList.add('is-complete');}
   else{if(ctaEl)ctaEl.innerHTML='🔒 &nbsp;Collect More Stamps';if(lockEl)lockEl.textContent='🔒';if(card3d)card3d.classList.remove('is-complete');}
+  /* V2.08D: drive reward-ready banner and passport badge */
+  _updateRewardNotifications(rewardStatus);
   /* V2.04B: Render QR on dashboard panel */
   renderDashQR(customer.customerId);
+  /* V2.10A: Render selfie challenge section */
+  renderSelfieSection(customer);
 }
 
 /* ================================================================
@@ -3875,6 +4777,7 @@ document.addEventListener('keydown',e=>{
   if(document.getElementById('sgLogoutOverlay').classList.contains('is-visible')){closeLogoutModal();return;}
   if(document.getElementById('sgDupOverlay').classList.contains('is-visible')){closeDupModal();return;}
   if(document.getElementById('sgSuccessOverlay').classList.contains('is-visible')){document.getElementById('sgSuccessOverlay').classList.remove('is-visible');stopConfetti();return;}
+  if(document.getElementById('sgRewardUnlockOverlay').classList.contains('is-visible')){closeRewardUnlockModal();return;}
   if(document.getElementById('viewLogin').classList.contains('is-active')){showView('viewLanding');return;}
 });
 
@@ -4160,6 +5063,23 @@ function populateProfile(customer) {
     customer.rewardsClaimed !== undefined
       ? customer.rewardsClaimed
       : Math.floor((customer.stamps || 0) / 5);
+  /* V2.08D: reward status badge on profile */
+  const _profState = _normaliseRewardState(customer.rewardState || customer.rewardStatus)
+                     || _deriveRewardState(customer.stamps || 0, customer.rewardsClaimed || 0);
+  const _profBadge = document.getElementById('profileRewardStateBadge');
+  if (_profBadge) {
+    _profBadge.className = 'sg-profile-reward-status__badge';
+    if (_profState === REWARD_STATE.UNLOCKED) {
+      _profBadge.classList.add('sg-profile-reward-status__badge--unlocked');
+      _profBadge.textContent = '🎁 Ready to Claim';
+    } else if (_profState === REWARD_STATE.CLAIMED) {
+      _profBadge.classList.add('sg-profile-reward-status__badge--claimed');
+      _profBadge.textContent = '✅ Claimed';
+    } else {
+      _profBadge.classList.add('sg-profile-reward-status__badge--locked');
+      _profBadge.textContent = '🔒 Locked';
+    }
+  }
   /* V2.04B: QR is now dashboard-only; profile no longer shows QR */
 }
 
@@ -4171,7 +5091,1146 @@ function openProfile() {
   const customer = mergePassportIntoCustomer(sessionId) || findById(sessionId);
   if (!customer) { showView('viewLogin'); return; }
   populateProfile(customer);
+  /* V2.09D-C: reset claim history panel on each open */
+  _resetClaimHistoryPanel();
   showView('viewProfile');
+}
+
+/* ================================================================
+   V2.10A — SELFIE CHALLENGE SECTION
+   Foundation: renders the selfie section on the Passport (Dashboard)
+   page. Uses a dedicated selfiePhoto field — completely separate from
+   profilePhoto. Upload functionality is not yet implemented.
+   ================================================================ */
+
+/**
+ * renderSelfieSection(customer)
+ * Renders the Selfie Challenge section body.
+ * Empty state: prompt + "Add Selfie" button (upload not yet wired).
+ * Called from populateDashboard() on every dashboard refresh.
+ */
+function renderSelfieSection(customer) {
+  const body = document.getElementById('sgSelfieBody');
+  if (!body) return;
+
+  /* selfiePhoto is separate from profilePhoto — do not read profilePhoto here */
+  const selfiePhoto = customer && customer.selfiePhoto ? customer.selfiePhoto : null;
+
+  if (selfiePhoto) {
+    /* Photo present — placeholder for V2.10B display logic */
+    body.innerHTML = _buildSelfiePhotoState(selfiePhoto);
+  } else {
+    /* Empty state */
+    body.innerHTML = _buildSelfieEmptyState();
+  }
+}
+
+/**
+ * _buildSelfieEmptyState()
+ * Returns the HTML string for the empty selfie state.
+ */
+function _buildSelfieEmptyState() {
+  return `
+    <div class="sg-selfie-empty" aria-label="No selfie uploaded yet">
+      <div class="sg-selfie-empty__icon" aria-hidden="true">🤳</div>
+      <p class="sg-selfie-empty__title">Take Your Shumai-Gosh Selfie!</p>
+      <p class="sg-selfie-empty__sub">Share your Shumai-Gosh moment. Upload a selfie to show off your love for Siomai!</p>
+    </div>
+    <button class="sg-selfie-add-btn" type="button"
+      id="sgSelfieAddBtn"
+      onclick="handleSelfieAddTap()"
+      aria-label="Add your selfie photo">
+      <span class="sg-selfie-add-btn__icon" aria-hidden="true">📷</span>
+      Add Selfie
+    </button>`;
+}
+
+/**
+ * _buildSelfiePhotoState(dataUrl)
+ * V2.10G: Returns the full display HTML for a saved selfie.
+ * Shows the circular photo, a label, and a "Change Selfie" button.
+ */
+function _buildSelfiePhotoState(dataUrl) {
+  return `
+    <div class="sg-selfie-photo-wrap" aria-label="Your selfie">
+      <div class="sg-selfie-photo-frame">
+        <img src="${dataUrl}" alt="Your Shumai-Gosh selfie">
+      </div>
+      <p class="sg-selfie-photo-label">Your Shumai-Gosh Selfie! 🤳</p>
+      <p class="sg-selfie-photo-sub">Looking great! Tap below to update.</p>
+      <button class="sg-selfie-change-btn" type="button"
+        onclick="handleSelfieAddTap()"
+        aria-label="Change your selfie photo">
+        📷 Change Selfie
+      </button>
+    </div>`;
+}
+
+/**
+ * handleSelfieAddTap()
+ * Opens the selfie source selection action sheet.
+ */
+function handleSelfieAddTap() {
+  openSelfieSheet();
+}
+
+/* ================================================================
+   V2.10G — SELFIE SAVE & DISPLAY ENGINE
+   Dedicated to selfie only. Does NOT touch saveProfilePhoto,
+   profilePhoto, refreshAllAvatars, or any profile photo path.
+   ================================================================ */
+
+/**
+ * saveSelfiePhoto(compressedDataUrl)
+ * Persists the compressed selfie JPEG to customer.selfiePhoto,
+ * syncs to Firebase, refreshes the selfie section display,
+ * and shows the success banner.
+ * Called exclusively from confirmSelfieCrop() after V2.10F compression.
+ *
+ * @param {string} compressedDataUrl - JPEG data URL ≤ 500 KB
+ */
+function saveSelfiePhoto(compressedDataUrl) {
+  const sessionId = getSession();
+  if (!sessionId) {
+    showPhotoToast('⚠️ Not logged in.');
+    return;
+  }
+
+  const customers = getCustomers();
+  const idx = customers.findIndex(c => c.customerId === sessionId);
+  if (idx === -1) {
+    showPhotoToast('⚠️ Unable to save selfie. Please try again.');
+    return;
+  }
+
+  /* Write selfiePhoto — completely separate from profilePhoto */
+  customers[idx].selfiePhoto = compressedDataUrl;
+
+  try {
+    saveCustomers(customers);
+  } catch (e) {
+    /* localStorage quota exceeded */
+    showPhotoToast('⚠️ Unable to save selfie. Storage full.');
+    return;
+  }
+
+  /* Sync to Firebase */
+  autoSave(sessionId);
+
+  /* Refresh selfie section display immediately */
+  renderSelfieSection(customers[idx]);
+
+  /* Show success banner */
+  _showSelfieSuccessBanner();
+}
+
+/**
+ * _showSelfieSuccessBanner()
+ * Briefly shows the "Selfie Uploaded Successfully" banner
+ * inside the dashboard selfie section, then fades it out.
+ */
+let _selfieSuccessTimer = null;
+function _showSelfieSuccessBanner() {
+  const el = document.getElementById('sgSelfieSuccess');
+  if (!el) return;
+  el.classList.add('is-visible');
+  window.scrollTo({ top: document.getElementById('sgSelfieSection') ?
+    document.getElementById('sgSelfieSection').offsetTop - 20 : 0,
+    behavior: 'smooth' });
+  if (_selfieSuccessTimer) clearTimeout(_selfieSuccessTimer);
+  _selfieSuccessTimer = setTimeout(function() {
+    el.classList.remove('is-visible');
+    _selfieSuccessTimer = null;
+  }, 3200);
+}
+
+/* ================================================================
+   V2.10B — SELFIE SOURCE ACTION SHEET
+   ================================================================ */
+
+/**
+ * openSelfieSheet()
+ * Shows the selfie source action sheet.
+ */
+function openSelfieSheet() {
+  const overlay = document.getElementById('sgSelfieSheetOverlay');
+  if (!overlay) return;
+  overlay.classList.add('is-visible');
+  overlay.setAttribute('aria-hidden', 'false');
+  /* Focus the first option for accessibility */
+  setTimeout(() => {
+    const first = overlay.querySelector('.sg-action-option');
+    if (first) first.focus();
+  }, 120);
+}
+
+/**
+ * closeSelfieSheet()
+ * Closes the selfie source action sheet.
+ */
+function closeSelfieSheet() {
+  const overlay = document.getElementById('sgSelfieSheetOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('is-visible');
+  overlay.setAttribute('aria-hidden', 'true');
+}
+
+/**
+ * handleSelfieTakePhoto()
+ * Opens the dedicated selfie camera.
+ */
+function handleSelfieTakePhoto() {
+  closeSelfieSheet();
+  openSelfieCam();
+}
+
+/* ================================================================
+   V2.10C — SELFIE CAMERA ENGINE
+   Dedicated camera for selfie capture — completely separate from
+   the profile photo camera engine (V2.02H).
+   Captured image stored in _selfieCaptured (in-memory only).
+   Save to selfiePhoto field implemented in V2.10D.
+   ================================================================ */
+
+const SELFIE_CAM_MAX_BYTES = 5 * 1024 * 1024; // 5 MB size guard
+let _selfieCamStream   = null;  // active MediaStream
+let _selfieCaptured    = null;  // temp base64 — in-memory only, not saved yet
+
+/* ── DOM refs ── */
+let _scOverlay, _scVideo, _scCanvas, _scCtx,
+    _scLoading, _scError, _scErrorMsg,
+    _scLiveCtrl, _scReviewCtrl, _scSizeWarn;
+
+function _scRefs() {
+  _scOverlay    = document.getElementById('sgSelfieCamOverlay');
+  _scVideo      = document.getElementById('sgSelfieCamVideo');
+  _scCanvas     = document.getElementById('sgSelfieCamCanvas');
+  _scCtx        = _scCanvas ? _scCanvas.getContext('2d') : null;
+  _scLoading    = document.getElementById('sgSelfieCamLoading');
+  _scError      = document.getElementById('sgSelfieCamError');
+  _scErrorMsg   = document.getElementById('sgSelfieCamErrorMsg');
+  _scLiveCtrl   = document.getElementById('sgSelfieCamLiveControls');
+  _scReviewCtrl = document.getElementById('sgSelfieCamReviewControls');
+  _scSizeWarn   = document.getElementById('sgSelfieCamSizeWarn');
+}
+
+/**
+ * openSelfieCam()
+ * Requests camera permission (front-facing) and opens the selfie
+ * camera overlay. Resets all state on each open.
+ */
+async function openSelfieCam() {
+  _scRefs();
+  if (!_scOverlay) return;
+
+  _selfieCaptured = null;
+  _scShowState('loading');
+  _scOverlay.classList.add('is-visible');
+  _scOverlay.setAttribute('aria-hidden', 'false');
+
+  try {
+    _selfieCamStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    _scVideo.srcObject = _selfieCamStream;
+    await _scVideo.play();
+    _scShowState('live');
+  } catch (err) {
+    _selfieCamStream = null;
+    let msg = 'Camera access was denied. Please allow camera permission in your browser settings and try again.';
+    if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      msg = 'No camera was found on this device.';
+    } else if (err.name === 'NotReadableError') {
+      msg = 'Camera is already in use by another app. Close it and try again.';
+    }
+    if (_scErrorMsg) _scErrorMsg.textContent = msg;
+    _scShowState('error');
+  }
+}
+
+/**
+ * closeSelfieCam()
+ * Stops stream, clears temp capture, hides overlay.
+ */
+function closeSelfieCam() {
+  _scRefs();
+  _scStopStream();
+  _selfieCaptured = null;
+  if (_scCanvas) _scCanvas.classList.remove('is-captured');
+  if (_scOverlay) {
+    _scOverlay.classList.remove('is-visible');
+    _scOverlay.setAttribute('aria-hidden', 'true');
+  }
+}
+
+/**
+ * _scStopStream()
+ * Stops all tracks on the active selfie camera stream.
+ */
+function _scStopStream() {
+  if (_selfieCamStream) {
+    _selfieCamStream.getTracks().forEach(t => t.stop());
+    _selfieCamStream = null;
+  }
+  if (_scVideo) { _scVideo.srcObject = null; }
+}
+
+/**
+ * _scShowState(state)
+ * UI state machine: 'loading' | 'live' | 'error' | 'review'
+ */
+function _scShowState(state) {
+  if (_scLoading)    _scLoading.classList.toggle('is-visible',    state === 'loading');
+  if (_scError)      _scError.classList.toggle('is-visible',      state === 'error');
+  if (_scVideo)      _scVideo.style.display                     = state === 'live' ? 'block' : 'none';
+  if (_scCanvas)     _scCanvas.classList.toggle('is-captured',    state === 'review');
+  if (_scLiveCtrl)   _scLiveCtrl.classList.toggle('is-hidden',    state !== 'live');
+  if (_scReviewCtrl) _scReviewCtrl.classList.toggle('is-visible', state === 'review');
+  if (_scSizeWarn)   _scSizeWarn.classList.remove('is-visible');
+}
+
+/**
+ * captureSelfieCam()
+ * Draws the current video frame to the canvas, performs the 5 MB
+ * size guard, and stores the result in _selfieCaptured (temp only).
+ */
+function captureSelfieCam() {
+  if (!_scVideo || !_scCanvas || !_scCtx) return;
+  _scCanvas.width  = _scVideo.videoWidth  || 640;
+  _scCanvas.height = _scVideo.videoHeight || 480;
+  _scCtx.drawImage(_scVideo, 0, 0, _scCanvas.width, _scCanvas.height);
+  const dataUrl = _scCanvas.toDataURL('image/jpeg', 0.92);
+
+  const bytes = Math.ceil((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
+  if (bytes > SELFIE_CAM_MAX_BYTES) {
+    if (_scSizeWarn) _scSizeWarn.classList.add('is-visible');
+    return; // stay in live mode
+  }
+
+  _selfieCaptured = dataUrl; // temp — in-memory only
+  _scShowState('review');
+}
+
+/**
+ * retakeSelfieCam()
+ * Discards the captured frame and returns to live mode.
+ */
+function retakeSelfieCam() {
+  _selfieCaptured = null;
+  if (_scCanvas) _scCanvas.classList.remove('is-captured');
+  _scShowState('live');
+}
+
+/**
+ * useSelfieCam()
+ * V2.10E: Accepts the captured selfie and routes it through the crop screen.
+ * Stops the stream, closes the camera overlay, then opens the cropper.
+ */
+function useSelfieCam() {
+  if (!_selfieCaptured) return;
+  const raw = _selfieCaptured; // snapshot before stream teardown clears refs
+  _scStopStream();
+  _selfieCaptured = null;
+  if (_scOverlay) {
+    _scOverlay.classList.remove('is-visible');
+    _scOverlay.setAttribute('aria-hidden', 'true');
+  }
+  openSelfieCropper(raw); // V2.10E — route through crop screen
+}
+
+/* ================================================================
+   V2.10D — SELFIE GALLERY UPLOAD ENGINE
+   Dedicated gallery picker for selfie — completely separate from
+   the profile photo gallery engine (V2.02H).
+   Selected image stored in _selfieGalleryCapture (in-memory only).
+   No crop. No compression. No permanent save.
+   Supported: JPG, JPEG, PNG · Max 5 MB.
+   ================================================================ */
+
+const SELFIE_GALLERY_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const SELFIE_GALLERY_ACCEPT    = ['image/jpeg', 'image/png'];
+let _selfieGalleryCapture      = null; // temporary in-memory base64 only
+
+/**
+ * handleSelfieChooseGallery()
+ * "Choose From Gallery" option — opens the selfie gallery upload modal.
+ */
+function handleSelfieChooseGallery() {
+  closeSelfieSheet();
+  openSelfieGalleryModal();
+}
+
+/**
+ * openSelfieGalleryModal()
+ * Resets state and shows the selfie gallery overlay.
+ */
+function openSelfieGalleryModal() {
+  const overlay = document.getElementById('sgSelfieGalleryOverlay');
+  if (!overlay) return;
+  _selfieGalleryReset();
+  overlay.classList.add('is-visible');
+  overlay.setAttribute('aria-hidden', 'false');
+}
+
+/**
+ * closeSelfieGalleryModal()
+ * Hides the overlay and clears all temporary state.
+ */
+function closeSelfieGalleryModal() {
+  const overlay = document.getElementById('sgSelfieGalleryOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('is-visible');
+  overlay.setAttribute('aria-hidden', 'true');
+  _selfieGalleryReset();
+}
+
+/**
+ * _selfieGalleryReset()
+ * Clears the in-memory capture and resets the modal UI to its initial state.
+ */
+function _selfieGalleryReset() {
+  _selfieGalleryCapture = null;
+  const preview  = document.getElementById('sgSelfieGalleryPreviewWrap');
+  const dropzone = document.getElementById('sgSelfieGalleryDropzone');
+  const errEl    = document.getElementById('sgSelfieGalleryError');
+  const useBtn   = document.getElementById('sgSelfieGalleryUseBtn');
+  const img      = document.getElementById('sgSelfieGalleryPreviewImg');
+  const fileInput = document.getElementById('sgSelfieGalleryFileInput');
+  if (preview)   { preview.classList.remove('is-visible'); }
+  if (dropzone)  { dropzone.style.display = ''; }
+  if (errEl)     { errEl.classList.remove('is-visible'); errEl.textContent = ''; }
+  if (useBtn)    { useBtn.classList.remove('is-visible'); }
+  if (img)       { img.src = ''; }
+  if (fileInput) { fileInput.value = ''; }
+}
+
+/**
+ * triggerSelfieGalleryPicker()
+ * Programmatically opens the native file picker.
+ */
+function triggerSelfieGalleryPicker() {
+  const fileInput = document.getElementById('sgSelfieGalleryFileInput');
+  if (fileInput) fileInput.click();
+}
+
+/**
+ * onSelfieGalleryFileSelected(e)
+ * Handler for the hidden file input's change event.
+ */
+function onSelfieGalleryFileSelected(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  _processSelfieGalleryFile(file);
+}
+
+/**
+ * onSelfieGalleryDragOver(e)
+ * Visual drag-over feedback.
+ */
+function onSelfieGalleryDragOver(e) {
+  e.preventDefault();
+  const dz = document.getElementById('sgSelfieGalleryDropzone');
+  if (dz) dz.classList.add('is-dragover');
+}
+
+/**
+ * onSelfieGalleryDragLeave()
+ * Removes drag-over visual state.
+ */
+function onSelfieGalleryDragLeave() {
+  const dz = document.getElementById('sgSelfieGalleryDropzone');
+  if (dz) dz.classList.remove('is-dragover');
+}
+
+/**
+ * onSelfieGalleryDrop(e)
+ * Handles a file dropped onto the drop zone.
+ */
+function onSelfieGalleryDrop(e) {
+  e.preventDefault();
+  const dz = document.getElementById('sgSelfieGalleryDropzone');
+  if (dz) dz.classList.remove('is-dragover');
+  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!file) return;
+  _processSelfieGalleryFile(file);
+}
+
+/**
+ * _processSelfieGalleryFile(file)
+ * Validates type (JPG/PNG) and size (≤ 5 MB), then reads the file
+ * into a base64 data URL stored in _selfieGalleryCapture (in-memory only).
+ * No crop. No compression. No permanent save at this stage.
+ */
+function _processSelfieGalleryFile(file) {
+  const errEl = document.getElementById('sgSelfieGalleryError');
+  if (errEl) { errEl.classList.remove('is-visible'); errEl.textContent = ''; }
+
+  // Type guard — JPG and PNG only
+  if (!SELFIE_GALLERY_ACCEPT.includes(file.type)) {
+    if (errEl) {
+      errEl.textContent = '⚠️ Only JPG and PNG images are accepted.';
+      errEl.classList.add('is-visible');
+    }
+    return;
+  }
+
+  // Size guard — 5 MB maximum
+  if (file.size > SELFIE_GALLERY_MAX_BYTES) {
+    if (errEl) {
+      errEl.textContent = '⚠️ Please select an image smaller than 5 MB.';
+      errEl.classList.add('is-visible');
+    }
+    return;
+  }
+
+  // Read file into base64 — stored in-memory only, not saved
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    _selfieGalleryCapture = ev.target.result; // in-memory only
+
+    // Show preview
+    const img      = document.getElementById('sgSelfieGalleryPreviewImg');
+    const preview  = document.getElementById('sgSelfieGalleryPreviewWrap');
+    const dropzone = document.getElementById('sgSelfieGalleryDropzone');
+    const useBtn   = document.getElementById('sgSelfieGalleryUseBtn');
+
+    if (img)      { img.src = _selfieGalleryCapture; }
+    if (preview)  { preview.classList.add('is-visible'); }
+    if (dropzone) { dropzone.style.display = 'none'; }
+    if (useBtn)   { useBtn.classList.add('is-visible'); }
+  };
+  reader.onerror = function() {
+    if (errEl) {
+      errEl.textContent = '⚠️ Could not read the file. Please try another image.';
+      errEl.classList.add('is-visible');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+/**
+ * useSelfieGalleryPhoto()
+ * V2.10E: Routes through the selfie cropper before storing.
+ * Closes the gallery modal and opens the crop screen.
+ */
+function useSelfieGalleryPhoto() {
+  if (!_selfieGalleryCapture) return;
+  const raw = _selfieGalleryCapture;
+  closeSelfieGalleryModal();
+  openSelfieCropper(raw); // V2.10E — crop before accepting
+}
+
+/* ── Backdrop click to dismiss selfie gallery modal ── */
+document.addEventListener('DOMContentLoaded', function() {
+  const selfieGalleryOverlay = document.getElementById('sgSelfieGalleryOverlay');
+  if (selfieGalleryOverlay) {
+    selfieGalleryOverlay.addEventListener('click', function(e) {
+      if (e.target === this) closeSelfieGalleryModal();
+    });
+  }
+});
+
+/* ================================================================
+   V2.10E — SELFIE CROPPER ENGINE
+   Pure canvas-based 1:1 square crop.
+   Sources: camera capture (useSelfieCam) + gallery (useSelfieGalleryPhoto).
+   Move: touch-drag / mouse-drag.
+   Zoom: pinch-to-zoom (touch) / mouse-wheel / slider.
+   Output: square JPEG data URL stored in _selfieCaptured (in-memory only).
+   ================================================================ */
+
+/* ── State ── */
+const _SC = {
+  img:        null,   // loaded HTMLImageElement
+  rawDataUrl: null,   // original source (never mutated)
+
+  /* Canvas / viewport */
+  canvas:     null,
+  ctx:        null,
+  vpW:        0,      // viewport px width
+  vpH:        0,      // viewport px height
+
+  /* Image transform (image-space coords mapped to canvas) */
+  imgX:       0,      // canvas X of image top-left
+  imgY:       0,      // canvas Y of image top-left
+  scale:      1,      // current render scale (imgW * scale = drawn width)
+
+  /* Zoom bounds */
+  minScale:   1,      // set on load so crop square is always filled
+  maxScale:   4,
+
+  /* Crop square (canvas coords, always centered in viewport) */
+  cropX:      0,
+  cropY:      0,
+  cropSize:   0,
+
+  /* Drag state */
+  dragging:   false,
+  dragStartX: 0,
+  dragStartY: 0,
+  dragImgX:   0,
+  dragImgY:   0,
+
+  /* Pinch state */
+  pinching:     false,
+  pinchDist:    0,
+  pinchMidX:    0,
+  pinchMidY:    0,
+  pinchImgX:    0,
+  pinchImgY:    0,
+  pinchScale:   1,
+
+  /* RAF handle */
+  rafId: null
+};
+
+/* ── Open cropper ── */
+function openSelfieCropper(dataUrl) {
+  const overlay = document.getElementById('sgSelfieCropOverlay');
+  if (!overlay) return;
+
+  _SC.rawDataUrl = dataUrl;
+  _SC.img        = null;
+
+  overlay.classList.add('is-visible');
+  overlay.setAttribute('aria-hidden', 'false');
+
+  const img = new Image();
+  img.onload = function() {
+    _SC.img = img;
+    _scropInit();
+  };
+  img.onerror = function() {
+    /* Fallback: close and hand raw straight through */
+    overlay.classList.remove('is-visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    _selfieCaptured = dataUrl;
+    showPhotoToast('✅ Selfie captured!');
+  };
+  img.src = dataUrl;
+}
+
+/* ── Initialise canvas geometry and default transform ── */
+function _scropInit() {
+  const viewport = document.getElementById('sgScropViewport');
+  const canvas   = document.getElementById('sgScropCanvas');
+  if (!viewport || !canvas || !_SC.img) return;
+
+  _SC.canvas = canvas;
+  _SC.ctx    = canvas.getContext('2d');
+
+  /* Size canvas to viewport */
+  const rect = viewport.getBoundingClientRect();
+  _SC.vpW    = rect.width  || window.innerWidth;
+  _SC.vpH    = rect.height || (window.innerHeight - 180);
+  canvas.width  = _SC.vpW;
+  canvas.height = _SC.vpH;
+
+  /* Square crop window = 88% of the shorter side, centred */
+  const cropSize  = Math.floor(Math.min(_SC.vpW, _SC.vpH) * 0.88);
+  _SC.cropSize    = cropSize;
+  _SC.cropX       = (_SC.vpW - cropSize) / 2;
+  _SC.cropY       = (_SC.vpH - cropSize) / 2;
+
+  /* Min scale: image fills the crop square (no empty corners) */
+  const scaleToFillW = cropSize / _SC.img.naturalWidth;
+  const scaleToFillH = cropSize / _SC.img.naturalHeight;
+  _SC.minScale = Math.max(scaleToFillW, scaleToFillH);
+  _SC.maxScale = _SC.minScale * 4;
+
+  /* Default: fit the crop square exactly, centred */
+  _SC.scale = _SC.minScale;
+  _scropCenter();
+
+  /* Reset zoom slider */
+  _scropSyncSlider();
+
+  /* Events */
+  _scropBindEvents();
+
+  /* First draw */
+  _scropDraw();
+}
+
+/* ── Centre image over crop square ── */
+function _scropCenter() {
+  const drawnW = _SC.img.naturalWidth  * _SC.scale;
+  const drawnH = _SC.img.naturalHeight * _SC.scale;
+  /* Place image so its centre aligns with crop square centre */
+  _SC.imgX = _SC.cropX + (_SC.cropSize - drawnW) / 2;
+  _SC.imgY = _SC.cropY + (_SC.cropSize - drawnH) / 2;
+  _scropClamp();
+}
+
+/* ── Clamp image so crop square is always fully covered ── */
+function _scropClamp() {
+  const drawnW = _SC.img.naturalWidth  * _SC.scale;
+  const drawnH = _SC.img.naturalHeight * _SC.scale;
+  /* Left/top edge: image must not expose crop area */
+  const maxX = _SC.cropX;
+  const maxY = _SC.cropY;
+  /* Right/bottom edge */
+  const minX = _SC.cropX + _SC.cropSize - drawnW;
+  const minY = _SC.cropY + _SC.cropSize - drawnH;
+  _SC.imgX = Math.min(maxX, Math.max(minX, _SC.imgX));
+  _SC.imgY = Math.min(maxY, Math.max(minY, _SC.imgY));
+}
+
+/* ── Render loop ── */
+function _scropDraw() {
+  if (_SC.rafId) cancelAnimationFrame(_SC.rafId);
+  _SC.rafId = requestAnimationFrame(function() {
+    _SC.rafId = null;
+    if (!_SC.ctx || !_SC.img) return;
+
+    const ctx = _SC.ctx;
+    const W   = _SC.vpW;
+    const H   = _SC.vpH;
+    const drawnW = _SC.img.naturalWidth  * _SC.scale;
+    const drawnH = _SC.img.naturalHeight * _SC.scale;
+
+    ctx.clearRect(0, 0, W, H);
+
+    /* 1 — Draw full image (dimmed) */
+    ctx.save();
+    ctx.globalAlpha = 0.38;
+    ctx.drawImage(_SC.img, _SC.imgX, _SC.imgY, drawnW, drawnH);
+    ctx.restore();
+
+    /* 2 — Clip to crop square, draw full-brightness image */
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(_SC.cropX, _SC.cropY, _SC.cropSize, _SC.cropSize);
+    ctx.clip();
+    ctx.drawImage(_SC.img, _SC.imgX, _SC.imgY, drawnW, drawnH);
+    ctx.restore();
+
+    /* 3 — Crop border */
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(_SC.cropX, _SC.cropY, _SC.cropSize, _SC.cropSize);
+    ctx.restore();
+
+    /* 4 — Rule-of-thirds grid lines */
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+    ctx.lineWidth   = 1;
+    const t = _SC.cropSize / 3;
+    for (let i = 1; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(_SC.cropX + t * i, _SC.cropY);
+      ctx.lineTo(_SC.cropX + t * i, _SC.cropY + _SC.cropSize);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(_SC.cropX,                   _SC.cropY + t * i);
+      ctx.lineTo(_SC.cropX + _SC.cropSize,    _SC.cropY + t * i);
+      ctx.stroke();
+    }
+    ctx.restore();
+  });
+}
+
+/* ── Apply zoom around a pivot point (canvas coords) ── */
+function _scropZoom(newScale, pivotX, pivotY) {
+  newScale   = Math.min(_SC.maxScale, Math.max(_SC.minScale, newScale));
+  const ratio = newScale / _SC.scale;
+  /* Adjust image position so pivot stays fixed */
+  _SC.imgX  = pivotX - ratio * (pivotX - _SC.imgX);
+  _SC.imgY  = pivotY - ratio * (pivotY - _SC.imgY);
+  _SC.scale = newScale;
+  _scropClamp();
+  _scropDraw();
+  _scropSyncSlider();
+}
+
+/* ── Sync slider position to current scale ── */
+function _scropSyncSlider() {
+  const slider = document.getElementById('sgScropZoomSlider');
+  if (!slider) return;
+  const pct = (_SC.scale - _SC.minScale) / (_SC.maxScale - _SC.minScale);
+  const val = Math.round(pct * 100);
+  slider.value = val;
+  /* Update CSS custom property for track fill */
+  slider.style.setProperty('--scrop-pct', val + '%');
+}
+
+/* ── Slider input handler ── */
+function onScropZoomSlider(val) {
+  const pct      = parseInt(val, 10) / 100;
+  const newScale = _SC.minScale + pct * (_SC.maxScale - _SC.minScale);
+  /* Zoom around crop centre */
+  const cx = _SC.cropX + _SC.cropSize / 2;
+  const cy = _SC.cropY + _SC.cropSize / 2;
+  _scropZoom(newScale, cx, cy);
+  /* Update fill */
+  const slider = document.getElementById('sgScropZoomSlider');
+  if (slider) slider.style.setProperty('--scrop-pct', val + '%');
+}
+
+/* ── Pinch distance helper ── */
+function _pinchDist(t) {
+  const dx = t[0].clientX - t[1].clientX;
+  const dy = t[0].clientY - t[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+function _pinchMid(t) {
+  return {
+    x: (t[0].clientX + t[1].clientX) / 2,
+    y: (t[0].clientY + t[1].clientY) / 2
+  };
+}
+
+/* ── Get canvas-relative coords from a client point ── */
+function _canvasCoords(clientX, clientY) {
+  if (!_SC.canvas) return { x: clientX, y: clientY };
+  const r = _SC.canvas.getBoundingClientRect();
+  return { x: clientX - r.left, y: clientY - r.top };
+}
+
+/* ── Bind all pointer events ── */
+function _scropBindEvents() {
+  const canvas = _SC.canvas;
+  if (!canvas) return;
+
+  /* Remove old listeners via clone trick — safe because canvas is regenerated each open */
+  const fresh = canvas.cloneNode(true);
+  canvas.parentNode.replaceChild(fresh, canvas);
+  _SC.canvas = fresh;
+  _SC.ctx    = fresh.getContext('2d');
+
+  /* ── Touch events ── */
+  fresh.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    const touches = e.touches;
+    if (touches.length === 1) {
+      /* Single finger — start drag */
+      _SC.pinching  = false;
+      _SC.dragging  = true;
+      const pt      = _canvasCoords(touches[0].clientX, touches[0].clientY);
+      _SC.dragStartX = pt.x;
+      _SC.dragStartY = pt.y;
+      _SC.dragImgX   = _SC.imgX;
+      _SC.dragImgY   = _SC.imgY;
+    } else if (touches.length >= 2) {
+      /* Two fingers — start pinch */
+      _SC.dragging  = false;
+      _SC.pinching  = true;
+      _SC.pinchDist  = _pinchDist(touches);
+      _SC.pinchScale = _SC.scale;
+      const mid      = _pinchMid(touches);
+      const pt       = _canvasCoords(mid.x, mid.y);
+      _SC.pinchMidX  = pt.x;
+      _SC.pinchMidY  = pt.y;
+      _SC.pinchImgX  = _SC.imgX;
+      _SC.pinchImgY  = _SC.imgY;
+    }
+  }, { passive: false });
+
+  fresh.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    const touches = e.touches;
+    if (_SC.dragging && touches.length === 1) {
+      const pt   = _canvasCoords(touches[0].clientX, touches[0].clientY);
+      _SC.imgX   = _SC.dragImgX + (pt.x - _SC.dragStartX);
+      _SC.imgY   = _SC.dragImgY + (pt.y - _SC.dragStartY);
+      _scropClamp();
+      _scropDraw();
+    } else if (_SC.pinching && touches.length >= 2) {
+      const dist     = _pinchDist(touches);
+      const newScale = _SC.pinchScale * (dist / _SC.pinchDist);
+      _scropZoom(newScale, _SC.pinchMidX, _SC.pinchMidY);
+    }
+  }, { passive: false });
+
+  fresh.addEventListener('touchend', function(e) {
+    if (e.touches.length === 0) {
+      _SC.dragging = false;
+      _SC.pinching = false;
+    } else if (e.touches.length === 1 && _SC.pinching) {
+      /* One finger lifted during pinch — switch to drag */
+      _SC.pinching   = false;
+      _SC.dragging   = true;
+      const pt       = _canvasCoords(e.touches[0].clientX, e.touches[0].clientY);
+      _SC.dragStartX = pt.x;
+      _SC.dragStartY = pt.y;
+      _SC.dragImgX   = _SC.imgX;
+      _SC.dragImgY   = _SC.imgY;
+    }
+  }, { passive: false });
+
+  /* ── Mouse events ── */
+  fresh.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    _SC.dragging   = true;
+    const pt       = _canvasCoords(e.clientX, e.clientY);
+    _SC.dragStartX = pt.x;
+    _SC.dragStartY = pt.y;
+    _SC.dragImgX   = _SC.imgX;
+    _SC.dragImgY   = _SC.imgY;
+    fresh.style.cursor = 'grabbing';
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!_SC.dragging) return;
+    const pt   = _canvasCoords(e.clientX, e.clientY);
+    _SC.imgX   = _SC.dragImgX + (pt.x - _SC.dragStartX);
+    _SC.imgY   = _SC.dragImgY + (pt.y - _SC.dragStartY);
+    _scropClamp();
+    _scropDraw();
+  });
+
+  window.addEventListener('mouseup', function() {
+    if (_SC.dragging) {
+      _SC.dragging = false;
+      if (_SC.canvas) _SC.canvas.style.cursor = 'grab';
+    }
+  });
+
+  /* ── Wheel zoom ── */
+  fresh.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    const pt  = _canvasCoords(e.clientX, e.clientY);
+    const dir = e.deltaY < 0 ? 1 : -1;
+    _scropZoom(_SC.scale * (1 + dir * 0.08), pt.x, pt.y);
+  }, { passive: false });
+
+  fresh.style.cursor = 'grab';
+}
+
+/* ── Confirm crop — extract square to offscreen canvas → _selfieCaptured ── */
+function confirmSelfieCrop() {
+  if (!_SC.img || !_SC.scale) return;
+
+  /* Map crop square back to image-space coordinates */
+  const imgSpaceX = (_SC.cropX - _SC.imgX) / _SC.scale;
+  const imgSpaceY = (_SC.cropY - _SC.imgY) / _SC.scale;
+  const imgSpaceSize = _SC.cropSize / _SC.scale;
+
+  /* Output at native image resolution (capped at 1200px for sanity) */
+  const outSize = Math.min(Math.round(imgSpaceSize), 1200);
+
+  const offscreen = document.createElement('canvas');
+  offscreen.width  = outSize;
+  offscreen.height = outSize;
+  const octx = offscreen.getContext('2d');
+
+  octx.drawImage(
+    _SC.img,
+    imgSpaceX, imgSpaceY, imgSpaceSize, imgSpaceSize,
+    0, 0, outSize, outSize
+  );
+
+  /* V2.10F — compress before storing; target ≤ 500 KB JPEG */
+  const rawCrop = offscreen.toDataURL('image/jpeg', 0.92);
+  _compressSelfie(rawCrop, function(compressed) {
+    _selfieCaptured = compressed; // in-memory only
+    _scropClose();
+    saveSelfiePhoto(compressed); // V2.10G — persist and display
+  });
+}
+
+/* ── Cancel crop ── */
+function cancelSelfieCrop() {
+  _selfieCaptured = null;
+  _scropClose();
+}
+
+/* ── Internal: hide overlay and clean up ── */
+function _scropClose() {
+  const overlay = document.getElementById('sgSelfieCropOverlay');
+  if (overlay) {
+    overlay.classList.remove('is-visible');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+  if (_SC.rafId) { cancelAnimationFrame(_SC.rafId); _SC.rafId = null; }
+  _SC.img = null; _SC.rawDataUrl = null;
+}
+
+/* ── Resize: re-init if cropper is open ── */
+window.addEventListener('resize', function() {
+  const overlay = document.getElementById('sgSelfieCropOverlay');
+  if (overlay && overlay.classList.contains('is-visible') && _SC.img) {
+    _scropInit(); // re-measure viewport and redraw
+  }
+});
+
+/* ================================================================
+   V2.10F — SELFIE COMPRESSION ENGINE
+   Dedicated to selfie only — completely isolated from _compressPhoto
+   (profile photo engine, V2.02H). Do NOT merge or reuse.
+
+   Input:  JPEG data URL from confirmSelfieCrop() offscreen canvas.
+           Already square — no dimensional scaling needed.
+   Output: JPEG data URL ≤ 500 KB, stored in _selfieCaptured.
+   Format: image/jpeg throughout.
+   Target: SELFIE_COMPRESS_TARGET = 500 KB.
+   Strategy: quality step-down loop (0.88 → 0.07 steps → floor 0.30).
+             If the image is already within target at quality 0.88,
+             no further iterations run.
+   Fallback: if loading fails, stores the raw input unchanged.
+   ================================================================ */
+
+const SELFIE_COMPRESS_TARGET = 500 * 1024;  // 500 KB maximum output
+const SELFIE_COMPRESS_MIME   = 'image/jpeg';
+const SELFIE_COMPRESS_PREFIX = 'data:image/jpeg;base64,';
+
+/**
+ * _compressSelfie(dataUrl, callback)
+ * Compresses a selfie JPEG data URL to ≤ 500 KB via quality stepping.
+ * Calls callback(compressedDataUrl) when done.
+ * Input is already square (from cropper) so no resize is applied.
+ *
+ * @param {string}   dataUrl  - JPEG data URL from confirmSelfieCrop
+ * @param {function} callback - receives the compressed data URL
+ */
+function _compressSelfie(dataUrl, callback) {
+  const img = new Image();
+
+  img.onload = function() {
+    const canvas  = document.createElement('canvas');
+    /* Input is square — preserve exact pixel dimensions from the crop */
+    canvas.width  = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    /* Byte-size helper — counts actual bytes encoded in the base64 payload */
+    const byteSize = function(b64) {
+      const payload = b64.length - SELFIE_COMPRESS_PREFIX.length;
+      return Math.ceil(payload * 3 / 4);
+    };
+
+    /* Quality step-down loop: start 0.88, step -0.07, floor 0.30 */
+    let quality = 0.88;
+    let result  = canvas.toDataURL(SELFIE_COMPRESS_MIME, quality);
+
+    while (byteSize(result) > SELFIE_COMPRESS_TARGET && quality > 0.30) {
+      quality = Math.round((quality - 0.07) * 100) / 100; // avoid float drift
+      result  = canvas.toDataURL(SELFIE_COMPRESS_MIME, quality);
+    }
+
+    callback(result);
+  };
+
+  img.onerror = function() {
+    /* Fallback: pass raw input through unchanged */
+    callback(dataUrl);
+  };
+
+  img.src = dataUrl;
+}
+
+/* ================================================================
+   V2.09D-C — CUSTOMER CLAIM HISTORY
+   Reads from rewardClaims/ filtered by customerId.
+   ================================================================ */
+
+/**
+ * _resetClaimHistoryPanel()
+ * Collapses the panel and resets its content ready for next open.
+ */
+function _resetClaimHistoryPanel() {
+  const toggle = document.getElementById('sgClaimHistoryToggle');
+  const panel  = document.getElementById('sgClaimHistoryPanel');
+  const list   = document.getElementById('sgClaimHistoryList');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  if (panel)  panel.classList.remove('is-open');
+  if (list)   list.innerHTML = '';
+}
+
+/**
+ * toggleCustomerClaimHistory()
+ * Opens/closes the panel; fetches data from Firebase on first open.
+ */
+async function toggleCustomerClaimHistory() {
+  const toggle = document.getElementById('sgClaimHistoryToggle');
+  const panel  = document.getElementById('sgClaimHistoryPanel');
+  if (!toggle || !panel) return;
+
+  const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+
+  if (isOpen) {
+    toggle.setAttribute('aria-expanded', 'false');
+    panel.classList.remove('is-open');
+    return;
+  }
+
+  toggle.setAttribute('aria-expanded', 'true');
+  panel.classList.add('is-open');
+
+  /* Show loading state */
+  _renderCustomerClaimHistory(null);
+
+  const sessionId = getSession();
+  if (!sessionId) { _renderCustomerClaimHistory([]); return; }
+
+  try {
+    const snap = await _fbDb.ref('rewardClaims')
+      .orderByChild('customerId')
+      .equalTo(sessionId)
+      .once('value');
+
+    const claims = [];
+    if (snap.exists()) {
+      snap.forEach(child => { claims.push(child.val()); });
+      /* Sort newest-first */
+      claims.sort((a, b) => {
+        const ta = a.redeemedAt ? new Date(a.redeemedAt).getTime() : 0;
+        const tb = b.redeemedAt ? new Date(b.redeemedAt).getTime() : 0;
+        return tb - ta;
+      });
+    }
+    _renderCustomerClaimHistory(claims);
+  } catch (e) {
+    console.warn('[V2.09D-C] Claim history fetch failed:', e);
+    _renderCustomerClaimHistory([]);
+  }
+}
+
+/**
+ * _renderCustomerClaimHistory(claims)
+ * Renders the claim list. Pass null to show the loading state.
+ */
+function _renderCustomerClaimHistory(claims) {
+  const list = document.getElementById('sgClaimHistoryPanel');
+  if (!list) return;
+
+  if (claims === null) {
+    list.innerHTML = '<div class="sg-claim-history-loading" role="status">⏳ Loading…</div>';
+    return;
+  }
+
+  if (claims.length === 0) {
+    list.innerHTML = `
+      <div class="sg-claim-history-empty" role="listitem">
+        <span class="sg-claim-history-empty__icon" aria-hidden="true">🎁</span>
+        <p class="sg-claim-history-empty__title">No Rewards Claimed Yet</p>
+        <p class="sg-claim-history-empty__sub">Collect 5 stamps to earn your first free Shumai!</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = claims.map(c => {
+    const date    = c.redeemedAt ? new Date(c.redeemedAt) : null;
+    const dateStr = date
+      ? date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
+      : '—';
+    const timeStr = date
+      ? date.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', hour12: true })
+      : '';
+    return `
+      <div class="sg-claim-item" role="listitem">
+        <div class="sg-claim-item__icon" aria-hidden="true">🎁</div>
+        <div class="sg-claim-item__body">
+          <div class="sg-claim-item__type">${_escHtml(c.rewardType || 'Free Reward')}</div>
+          <div class="sg-claim-item__date">${_escHtml(dateStr)}</div>
+        </div>
+        <div class="sg-claim-item__time-col">${_escHtml(timeStr)}</div>
+      </div>`;
+  }).join('');
 }
 
 /* ================================================================
@@ -4394,11 +6453,27 @@ function _escHtml(str) {
 }
 
 /* ── Open Activity History view ── */
-function openActivityHistory() {
+/* V2.09D-D: Pull fresh activity from Firebase before rendering so that
+   staff-side reward claims (written via _spLogActivity) appear immediately
+   without requiring the customer to re-login. Falls back to local cache
+   silently if offline or fetch fails. */
+async function openActivityHistory() {
   const sessionId = getSession();
   if (!sessionId) { showView('viewLogin'); return; }
+
+  /* Render cached data immediately — no blank screen */
   renderActivityTimeline(sessionId);
   showView('viewActivity');
+
+  /* Refresh from Firebase in the background */
+  try {
+    await _fetchActivity(sessionId);
+    /* Re-render with merged result (may include staff-side claim events) */
+    renderActivityTimeline(sessionId);
+  } catch (e) {
+    /* Offline or error — cached render already shown */
+    console.warn('[V2.09D-D] Activity refresh failed:', e);
+  }
 }
 
 /* ================================================================
@@ -4832,6 +6907,53 @@ function showPhotoToast(msg) {
 
 const CONFETTI_COLORS = ['#E05580','#F2849E','#FFB6C1','#4A2112','#FCEAEA','#FFC300','#FF7A00'];
 
+
+/* ================================================================
+   V2.08C — REWARD UNLOCK CELEBRATION
+   Triggered when rewardState transitions LOCKED → UNLOCKED.
+   Confetti re-uses the existing launchConfetti / stopConfetti system.
+   ================================================================ */
+function showRewardUnlockModal() {
+  const overlay = document.getElementById('sgRewardUnlockOverlay');
+  if (!overlay) return;
+  overlay.classList.add('is-visible');
+  overlay.setAttribute('aria-hidden', 'false');
+  launchConfetti();
+}
+
+function closeRewardUnlockModal() {
+  const overlay = document.getElementById('sgRewardUnlockOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('is-visible');
+  overlay.setAttribute('aria-hidden', 'true');
+  stopConfetti();
+}
+
+/* Backdrop click to dismiss */
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('sgRewardUnlockOverlay');
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) closeRewardUnlockModal();
+    });
+  }
+});
+
+/* ================================================================
+   V2.08D — REWARD NOTIFICATION HELPER
+   Drives the dashboard banner and passport card badge.
+   Called from populateDashboard on every render.
+   ================================================================ */
+function _updateRewardNotifications(rewardStatus) {
+  const isUnlocked = (rewardStatus === 'unlocked');
+  /* Dashboard: Reward Ready banner */
+  const banner = document.getElementById('dashRewardReadyBanner');
+  if (banner) banner.classList.toggle('is-visible', isUnlocked);
+  /* Passport card: Reward Available badge */
+  const badge = document.getElementById('dashCardRewardBadge');
+  if (badge) badge.classList.toggle('is-visible', isUnlocked);
+}
+
 function launchConfetti() {
   const wrap = document.getElementById('sgConfettiWrap');
   wrap.innerHTML=''; wrap.classList.add('is-active');
@@ -4852,6 +6974,17 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('sgPhotoOverlay').addEventListener('click', function(e) {
     if (e.target === this) closePhotoModal();
   });
+  /* V2.10B: selfie sheet backdrop dismiss */
+  document.getElementById('sgSelfieSheetOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeSelfieSheet();
+  });
+  /* V2.10C: selfie camera backdrop dismiss */
+  const selfieCamOverlay = document.getElementById('sgSelfieCamOverlay');
+  if (selfieCamOverlay) {
+    selfieCamOverlay.addEventListener('click', function(e) {
+      if (e.target === this) closeSelfieCam();
+    });
+  }
 });
 
 /* ================================================================
@@ -5497,6 +7630,49 @@ document.addEventListener('keydown', function(e) {
 <div class="sg-photo-toast" id="sgPhotoToast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ================================================================
+     V2.10B — SELFIE SOURCE ACTION SHEET
+     Separate overlay from profile photo sheet — same CSS, different IDs.
+     ================================================================ -->
+<div class="sg-photo-overlay" id="sgSelfieSheetOverlay"
+  role="dialog" aria-modal="true" aria-labelledby="sgSelfieSheetTitle" aria-hidden="true">
+  <div class="sg-action-sheet" role="document">
+    <div class="sg-action-sheet__awning" aria-hidden="true"></div>
+    <div class="sg-action-sheet__handle" aria-hidden="true"></div>
+    <div class="sg-action-sheet__body">
+
+      <h2 class="sg-action-sheet__title" id="sgSelfieSheetTitle">Add Your Selfie</h2>
+
+      <div class="sg-action-sheet__options">
+
+        <button class="sg-action-option" type="button"
+          onclick="handleSelfieTakePhoto()"
+          aria-label="Take a selfie using your camera">
+          <span class="sg-action-option__icon" aria-hidden="true">🤳</span>
+          <span class="sg-action-option__label">Take Selfie</span>
+          <span class="sg-action-option__arrow" aria-hidden="true">›</span>
+        </button>
+
+        <button class="sg-action-option" type="button"
+          onclick="handleSelfieChooseGallery()"
+          aria-label="Choose a selfie from your gallery">
+          <span class="sg-action-option__icon" aria-hidden="true">🖼️</span>
+          <span class="sg-action-option__label">Choose From Gallery</span>
+          <span class="sg-action-option__arrow" aria-hidden="true">›</span>
+        </button>
+
+      </div>
+
+      <button class="sg-action-sheet__cancel" type="button"
+        onclick="closeSelfieSheet()"
+        aria-label="Cancel selfie selection">
+        Cancel
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
      V2.03B — AUTO SAVE TOAST
      Shown immediately after any auto-save event.
      ================================================================ -->
@@ -5560,6 +7736,120 @@ document.addEventListener('keydown', function(e) {
         </button>
         <button class="sg-gallery-btn sg-gallery-btn--cancel"
           type="button" onclick="closeGalleryModal()" aria-label="Cancel gallery selection">
+          Cancel
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     V2.10E — SELFIE CROPPER OVERLAY
+     Fullscreen. Pure canvas. 1:1 square crop.
+     Touch: pan + pinch-zoom. Mouse: drag + wheel-zoom.
+     Opened by both camera (useSelfieCam) and gallery (useSelfieGalleryPhoto).
+     ================================================================ -->
+<div class="sg-scrop-overlay" id="sgSelfieCropOverlay"
+  role="dialog" aria-modal="true" aria-label="Crop Your Selfie" aria-hidden="true">
+
+  <!-- Top bar -->
+  <div class="sg-scrop-topbar">
+    <span class="sg-scrop-topbar__title">✂️ Crop Selfie</span>
+    <button class="sg-scrop-topbar__close" type="button"
+      onclick="cancelSelfieCrop()" aria-label="Cancel crop and go back">✕</button>
+  </div>
+
+  <!-- Canvas viewport -->
+  <div class="sg-scrop-viewport" id="sgScropViewport">
+    <canvas class="sg-scrop-canvas" id="sgScropCanvas"
+      aria-label="Selfie crop editor"></canvas>
+    <p class="sg-scrop-hint" aria-hidden="true">Drag to reposition · Pinch or scroll to zoom</p>
+  </div>
+
+  <!-- Bottom controls -->
+  <div class="sg-scrop-controls">
+
+    <!-- Zoom slider -->
+    <div class="sg-scrop-zoom-row" role="group" aria-label="Zoom control">
+      <span class="sg-scrop-zoom-icon" aria-hidden="true">🔍</span>
+      <input class="sg-scrop-zoom-slider" id="sgScropZoomSlider"
+        type="range" min="0" max="100" value="0" step="1"
+        aria-label="Zoom level"
+        oninput="onScropZoomSlider(this.value)">
+    </div>
+
+    <!-- Confirm / Cancel -->
+    <div class="sg-scrop-btn-row">
+      <button class="sg-scrop-btn sg-scrop-btn--cancel" type="button"
+        onclick="cancelSelfieCrop()" aria-label="Cancel crop">
+        ✕ Cancel
+      </button>
+      <button class="sg-scrop-btn sg-scrop-btn--confirm" type="button"
+        onclick="confirmSelfieCrop()" aria-label="Confirm crop and use selfie">
+        ✓ Use Selfie
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     V2.10D — SELFIE GALLERY UPLOAD MODAL
+     Separate overlay from profile gallery — same CSS, own IDs.
+     Supported: JPG, JPEG, PNG · Max 5 MB.
+     No crop. No compression. No permanent save at selection.
+     ================================================================ -->
+<div class="sg-gallery-overlay" id="sgSelfieGalleryOverlay"
+  role="dialog" aria-modal="true" aria-labelledby="sgSelfieGalleryTitle" aria-hidden="true">
+  <div class="sg-gallery-sheet">
+
+    <div class="sg-gallery-sheet__awning" aria-hidden="true"></div>
+    <div class="sg-gallery-sheet__handle" aria-hidden="true"></div>
+    <div class="sg-gallery-sheet__body">
+
+      <h2 class="sg-gallery-sheet__title" id="sgSelfieGalleryTitle">Choose Your Selfie</h2>
+
+      <!-- Hidden file input — JPG / JPEG / PNG only -->
+      <input type="file" id="sgSelfieGalleryFileInput"
+        accept="image/jpeg,image/png"
+        style="display:none;" aria-hidden="true"
+        onchange="onSelfieGalleryFileSelected(event)">
+
+      <!-- Image preview (shown after selection) -->
+      <div class="sg-gallery-preview-wrap" id="sgSelfieGalleryPreviewWrap">
+        <img class="sg-gallery-preview-img" id="sgSelfieGalleryPreviewImg"
+          src="" alt="Selected selfie preview">
+      </div>
+
+      <!-- Drop zone / tap to select -->
+      <div class="sg-gallery-dropzone" id="sgSelfieGalleryDropzone"
+        role="button" tabindex="0"
+        aria-label="Tap to select a selfie from your gallery"
+        onclick="triggerSelfieGalleryPicker()"
+        onkeydown="if(event.key==='Enter'||event.key===' ')triggerSelfieGalleryPicker()"
+        ondragover="onSelfieGalleryDragOver(event)"
+        ondragleave="onSelfieGalleryDragLeave()"
+        ondrop="onSelfieGalleryDrop(event)">
+        <span class="sg-gallery-dropzone__icon" aria-hidden="true">🤳</span>
+        <span class="sg-gallery-dropzone__label">Tap to Select Selfie</span>
+        <span class="sg-gallery-dropzone__sub">JPG or PNG · Max 5 MB</span>
+      </div>
+
+      <!-- Validation error -->
+      <p class="sg-gallery-error" id="sgSelfieGalleryError"
+        role="alert" aria-live="polite"></p>
+
+      <!-- Action buttons -->
+      <div class="sg-gallery-actions">
+        <button class="sg-gallery-btn sg-gallery-btn--use" id="sgSelfieGalleryUseBtn"
+          type="button" onclick="useSelfieGalleryPhoto()"
+          aria-label="Use selected selfie">
+          ✓ Use Selfie
+        </button>
+        <button class="sg-gallery-btn sg-gallery-btn--cancel"
+          type="button" onclick="closeSelfieGalleryModal()"
+          aria-label="Cancel selfie gallery selection">
           Cancel
         </button>
       </div>
@@ -5638,6 +7928,76 @@ document.addEventListener('keydown', function(e) {
 </div>
 
 <!-- ================================================================
+     V2.10C — SELFIE CAMERA OVERLAY
+     Separate overlay from profile photo camera — same CSS, own IDs.
+     ================================================================ -->
+<div class="sg-camera-overlay" id="sgSelfieCamOverlay" role="dialog" aria-modal="true" aria-label="Selfie Camera" aria-hidden="true">
+
+  <!-- Top bar -->
+  <div class="sg-camera-topbar">
+    <span class="sg-camera-topbar__title">🤳 Take Selfie</span>
+    <button class="sg-camera-topbar__close" type="button" onclick="closeSelfieCam()" aria-label="Close selfie camera">✕</button>
+  </div>
+
+  <!-- Viewfinder -->
+  <div class="sg-camera-viewfinder">
+
+    <!-- Loading state -->
+    <div class="sg-camera-loading" id="sgSelfieCamLoading" aria-label="Starting camera…">
+      <div class="sg-camera-loading__dots">
+        <div class="sg-camera-loading__dot"></div>
+        <div class="sg-camera-loading__dot"></div>
+        <div class="sg-camera-loading__dot"></div>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div class="sg-camera-error" id="sgSelfieCamError" role="alert">
+      <span class="sg-camera-error__icon" aria-hidden="true">🚫</span>
+      <p class="sg-camera-error__title">Camera Unavailable</p>
+      <p class="sg-camera-error__msg" id="sgSelfieCamErrorMsg">Camera access was denied.</p>
+    </div>
+
+    <!-- Live video -->
+    <video class="sg-camera-video" id="sgSelfieCamVideo" playsinline muted aria-label="Selfie camera viewfinder" style="display:none;"></video>
+
+    <!-- Captured snapshot -->
+    <canvas class="sg-camera-canvas" id="sgSelfieCamCanvas" aria-label="Captured selfie preview"></canvas>
+
+    <!-- Guide ring overlay -->
+    <div class="sg-camera-guide" aria-hidden="true">
+      <div class="sg-camera-guide__ring"></div>
+    </div>
+
+  </div>
+
+  <!-- Controls -->
+  <div class="sg-camera-controls">
+
+    <!-- Live: shutter button -->
+    <div class="sg-camera-live-controls is-hidden" id="sgSelfieCamLiveControls">
+      <button class="sg-camera-shutter" type="button" onclick="captureSelfieCam()" aria-label="Take selfie"></button>
+    </div>
+
+    <!-- Review: Retake + Use Selfie -->
+    <div class="sg-camera-review-controls" id="sgSelfieCamReviewControls">
+      <button class="sg-cam-btn sg-cam-btn--retake" type="button" onclick="retakeSelfieCam()" aria-label="Retake selfie">
+        ↩ Retake
+      </button>
+      <button class="sg-cam-btn sg-cam-btn--use" type="button" onclick="useSelfieCam()" aria-label="Use this selfie">
+        ✓ Use Selfie
+      </button>
+    </div>
+
+    <!-- Size warning -->
+    <p class="sg-camera-size-warn" id="sgSelfieCamSizeWarn" role="alert" aria-live="polite">
+      ⚠️ Photo exceeds 5 MB. Please move closer and try again.
+    </p>
+
+  </div>
+</div>
+
+<!-- ================================================================
      V2.04C — QR DOWNLOAD SUCCESS TOAST
      ================================================================ -->
 <div class="sg-dl-toast" id="sgDLToast" role="status" aria-live="polite" aria-atomic="true">
@@ -5703,6 +8063,46 @@ document.addEventListener('keydown', function(e) {
       <span aria-hidden="true">↻</span> Refresh QR
     </button>
 
+  </div>
+</div>
+
+
+<!-- ================================================================
+     V2.08C — REWARD UNLOCK CELEBRATION MODAL
+     ================================================================ -->
+<div class="sg-reward-unlock-overlay" id="sgRewardUnlockOverlay"
+  role="dialog" aria-modal="true" aria-labelledby="sgRewardUnlockTitle" aria-hidden="true">
+  <div class="sg-reward-unlock-modal">
+    <div class="sg-reward-unlock-modal__awning" aria-hidden="true"></div>
+    <div class="sg-reward-unlock-modal__body">
+      <span class="sg-reward-unlock-modal__burst" aria-hidden="true">🎁</span>
+      <h2 class="sg-reward-unlock-modal__title" id="sgRewardUnlockTitle">
+        Congratulations!
+      </h2>
+      <p class="sg-reward-unlock-modal__subtitle">
+        You earned a <strong>FREE Siomai Reward!</strong><br>
+        Show this to our staff to claim your treat.
+      </p>
+      <div class="sg-reward-unlock-modal__card" aria-label="Reward details">
+        <span class="sg-reward-unlock-modal__card-icon" aria-hidden="true">🥟</span>
+        <div class="sg-reward-unlock-modal__card-text">
+          <div class="sg-reward-unlock-modal__card-label">Your Reward</div>
+          <div class="sg-reward-unlock-modal__card-value">1 Free Siomai<br>Ready to Claim</div>
+        </div>
+      </div>
+      <div class="sg-reward-unlock-modal__actions">
+        <button class="sg-reward-unlock-modal__btn-primary"
+          onclick="closeRewardUnlockModal(); showView('viewDashboard');"
+          aria-label="View your passport dashboard">
+          🥟 &nbsp;View Passport
+        </button>
+        <button class="sg-reward-unlock-modal__btn-secondary"
+          onclick="closeRewardUnlockModal()"
+          aria-label="Close this celebration and continue">
+          Close
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
