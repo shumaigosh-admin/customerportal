@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4715,15 +4716,81 @@ function normaliseMobile(v) { const d=v.replace(/\D/g,''); return d.startsWith('
 function findByMobile(m) { return loadCustomers().find(c=>normaliseMobile(c.mobileNumber)===normaliseMobile(m))||null; }
 function findById(id) { return loadCustomers().find(c=>c.customerId===id)||null; }
 
-function nextCustomerId() {
-  const n = parseInt(localStorage.getItem(CACHE_ID_SEQ)||'0',10)+1;
-  localStorage.setItem(CACHE_ID_SEQ, String(n));
-  SG_BACKEND.set('meta:id_seq', n).catch(()=>{});
-  return 'SG-'+String(n).padStart(6,'0');
+/* ================================================================
+   V2.11I — BACKEND-WIDE MOBILE NUMBER LOOKUP
+   Scans the Firebase "customers" collection for a matching mobile
+   number, regardless of what's in this device's local cache, and
+   merges any match into the local cache for future lookups.
+   Used by both login (existing flow) and registration (new
+   duplicate check, see handleRegister) so a phone number already
+   registered on another device is recognised here too.
+   ================================================================ */
+async function _pullCustomerByMobileFromBackend(mobile) {
+  const mobileNorm = normaliseMobile(mobile);
+  try {
+    const keys = await SG_BACKEND.list('customers:');
+    for (const key of keys) {
+      const c = await SG_BACKEND.get(key);
+      if (c && normaliseMobile(c.mobileNumber) === mobileNorm) {
+        const cached = _cacheGet(CACHE_CUSTOMERS) || [];
+        const i = cached.findIndex(x => x.customerId === c.customerId);
+        if (i >= 0) cached[i] = c; else cached.push(c);
+        _cacheSet(CACHE_CUSTOMERS, cached);
+        return c;
+      }
+    }
+  } catch (e) {
+    console.warn('[V2.11I] Backend mobile lookup failed', e);
+  }
+  return null;
 }
 
-function createCustomer(fullName, mobileNumber, pin) {
-  const id = nextCustomerId();
+/* ================================================================
+   V2.11I — GLOBALLY UNIQUE CUSTOMER ID GENERATION
+   The previous implementation kept the sequence counter only in
+   this device's localStorage and never read the existing counter
+   from Firebase. Every new device therefore started counting from
+   0, so the very first registration on each new phone produced
+   "SG-000001" again — colliding with whatever device registered
+   first.
+
+   Fix: use a Firebase Realtime Database transaction on
+   "meta/id_seq" to atomically read-increment-write the shared
+   counter. Transactions are safe even if two devices register at
+   the same instant — Firebase resolves the conflict server-side
+   and each caller gets a distinct, incremented value.
+
+   If the device is offline (transaction cannot reach Firebase),
+   fall back to a non-colliding, clearly-marked offline ID that
+   will never match a server-issued "SG-NNNNNN" id. The local
+   sequence counter is kept only as a last-resort fallback seed.
+   ================================================================ */
+async function nextCustomerId() {
+  try {
+    const ref = _fbDb.ref('meta/id_seq');
+    const result = await ref.transaction(function(current) {
+      return (typeof current === 'number' && !isNaN(current) ? current : 0) + 1;
+    });
+    if (result && result.committed) {
+      const n = result.snapshot.val();
+      localStorage.setItem(CACHE_ID_SEQ, String(n));
+      return 'SG-' + String(n).padStart(6, '0');
+    }
+  } catch (e) {
+    console.warn('[V2.11I] id_seq transaction failed, using offline fallback id', e);
+  }
+
+  /* Offline fallback: timestamp + local counter, prefixed so it can
+     never collide with a server-issued "SG-NNNNNN" id. Reconciled
+     with the real sequence the next time the device is online,
+     since the customer record itself still syncs normally. */
+  const n = parseInt(localStorage.getItem(CACHE_ID_SEQ) || '0', 10) + 1;
+  localStorage.setItem(CACHE_ID_SEQ, String(n));
+  return 'SG-OFFLINE-' + Date.now().toString(36).toUpperCase() + '-' + String(n).padStart(4, '0');
+}
+
+async function createCustomer(fullName, mobileNumber, pin) {
+  const id = await nextCustomerId();
   const c = {
     customerId: id, passportNumber: 'PASS-'+id.replace('SG-',''),
     fullName: fullName.replace(/\s+/g,' ').trim(),
@@ -5438,11 +5505,17 @@ function handleRegister() {
   applyNameState(nr);applyMobileState(mr);applyPinState(pr);applyPinConfirmState(pcr);
   if(!nr.ok||!mr.ok||!pr.ok||!pcr.ok){shakeField(!nr.ok?fieldName:!mr.ok?fieldMobile:!pr.ok?fieldPin:fieldPinConfirm);return;}
   const btn=document.getElementById('sgRegBtn'); btn.classList.add('is-loading');btn.disabled=true;
-  setTimeout(()=>{
+  setTimeout(async ()=>{
+    /* V2.11I: check local cache first, then fall back to a full
+       Firebase scan so a phone number already registered on a
+       different device is also caught here. */
+    let existing = findByMobile(inputMobile.value);
+    if (!existing) existing = await _pullCustomerByMobileFromBackend(inputMobile.value);
+
     btn.classList.remove('is-loading');btn.disabled=false;
-    const existing=findByMobile(inputMobile.value);
+
     if(existing){document.getElementById('dupName').textContent=existing.fullName;document.getElementById('dupId').textContent=existing.customerId;document.getElementById('sgDupOverlay').classList.add('is-visible');return;}
-    const customer=createCustomer(inputName.value,inputMobile.value,inputPin.value);
+    const customer=await createCustomer(inputName.value,inputMobile.value,inputPin.value);
     document.getElementById('summaryName').textContent=customer.fullName;
     document.getElementById('summaryMobile').textContent=customer.mobileNumber;
     document.getElementById('summaryId').textContent=customer.customerId;
@@ -5504,10 +5577,9 @@ async function handleLogin() {
   if(!mr.ok||!pr.ok){shakeField(!mr.ok?fieldLoginMobile:fieldLoginPin);return;}
   const btn=document.getElementById('sgLoginBtn');btn.classList.add('is-loading');btn.disabled=true;
   // V2.04A: try to pull customer from backend by mobile before checking credentials
+  // V2.11I: now via shared _pullCustomerByMobileFromBackend helper
   try {
-    const mobileNorm=normaliseMobile(inputLoginMobile.value);
-    const keys=await SG_BACKEND.list('customers:');
-    for(const key of keys){const c=await SG_BACKEND.get(key);if(c&&normaliseMobile(c.mobileNumber)===mobileNorm){const cached=_cacheGet(CACHE_CUSTOMERS)||[];const i=cached.findIndex(x=>x.customerId===c.customerId);if(i>=0)cached[i]=c;else cached.push(c);_cacheSet(CACHE_CUSTOMERS,cached);break;}}
+    await _pullCustomerByMobileFromBackend(inputLoginMobile.value);
   } catch {}
   setTimeout(async()=>{
     btn.classList.remove('is-loading');btn.disabled=false;
