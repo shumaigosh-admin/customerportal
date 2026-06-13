@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -260,6 +259,47 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 14px;
 }
+
+/* ── V2.11B — Brand CTA block (inside card, above stamp strip bottom edge) ── */
+.sg-sharecard-card__cta {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1.5px solid rgba(242,132,158,0.22);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  position: relative; z-index: 1;
+}
+
+/* Tagline */
+.sg-sharecard-card__cta-tagline {
+  font-family: var(--sg-font-display); font-size: 13px;
+  color: var(--sg-brown); text-align: center; line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+.sg-sharecard-card__cta-tagline .sg-cta-brand {
+  color: var(--sg-pink-deep);
+}
+
+/* Sub-tagline */
+.sg-sharecard-card__cta-sub {
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--sg-text-soft);
+  text-align: center;
+}
+
+/* Social handles row */
+.sg-sharecard-card__cta-social {
+  display: flex; align-items: center; gap: 12px; margin-top: 2px;
+}
+.sg-sharecard-card__cta-social-handle {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em;
+  color: var(--sg-text-soft);
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(242,132,158,0.22);
+  border-radius: var(--sg-radius-pill);
+  padding: 3px 10px;
+}
+.sg-sharecard-card__cta-social-handle__icon { font-size: 11px; line-height: 1; }
 
 /* ── Preview-only notice ── */
 .sg-sharecard-notice {
@@ -1498,6 +1538,211 @@ body {
 .sg-reward-card__cta { position:relative; z-index:1; display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.14); border:1.5px solid rgba(255,255,255,0.3); border-radius:var(--sg-radius-pill); padding:7px 18px; }
 
 /* ── Dashboard footer ── */
+/* ── V2.11I — Loyalty Score chip on Dashboard ── */
+.sg-dash-loyalty {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(255,240,245,0.9), rgba(255,228,238,0.9));
+  border: 1.5px solid rgba(242,132,158,0.28);
+  border-radius: var(--sg-radius-pill);
+  width: fit-content;
+  margin-left: auto; margin-right: auto;
+  box-shadow: 0 2px 10px rgba(224,85,128,0.1);
+}
+.sg-dash-loyalty__icon { font-size: 15px; line-height: 1; }
+.sg-dash-loyalty__value {
+  font-family: var(--sg-font-display); font-size: 18px;
+  color: var(--sg-pink-deep); line-height: 1;
+}
+.sg-dash-loyalty__label {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--sg-text-soft);
+}
+
+/* ============================================================
+   V2.11K — BADGE CELEBRATION MODAL
+   Gold-themed. Separate from the pink Reward Unlock modal.
+   ============================================================ */
+.sg-badge-celebration-overlay {
+  position: fixed; inset: 0;
+  background: rgba(74,33,18,0.58);
+  backdrop-filter: blur(9px);
+  z-index: 235;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.sg-badge-celebration-overlay.is-visible { opacity: 1; pointer-events: all; }
+
+.sg-badge-celebration-modal {
+  width: 100%; max-width: 360px;
+  background: #fff;
+  border-radius: var(--sg-radius-lg); overflow: hidden;
+  box-shadow: 0 40px 100px rgba(74,33,18,0.35), 0 12px 40px rgba(212,160,0,0.28);
+  transform: scale(0.85) translateY(32px);
+  transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
+}
+.sg-badge-celebration-overlay.is-visible .sg-badge-celebration-modal {
+  transform: scale(1) translateY(0);
+}
+
+/* Gold awning stripe */
+.sg-badge-celebration-modal__awning {
+  height: 10px;
+  background: repeating-linear-gradient(
+    90deg,
+    #D4A000 0px, #D4A000 18px,
+    rgba(255,248,220,0.9) 18px, rgba(255,248,220,0.9) 36px
+  );
+}
+
+.sg-badge-celebration-modal__body {
+  padding: 28px 24px 26px;
+  text-align: center;
+}
+
+.sg-badge-celebration-modal__burst {
+  font-size: 62px; display: block; margin-bottom: 10px;
+  animation: bounce-in 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+}
+
+.sg-badge-celebration-modal__title {
+  font-family: var(--sg-font-display); font-size: 28px; line-height: 1.1;
+  color: #7A5000; margin-bottom: 6px;
+}
+
+.sg-badge-celebration-modal__subtitle {
+  font-size: 13px; font-weight: 700; color: var(--sg-text-mid);
+  line-height: 1.55; margin-bottom: 20px;
+}
+.sg-badge-celebration-modal__subtitle strong { color: #9A6500; }
+
+/* Badge preview card */
+.sg-badge-celebration-modal__card {
+  background: linear-gradient(135deg, #FFF8E8 0%, #FFF0C8 55%, #FFE494 100%);
+  border: 2px solid rgba(212,160,0,0.4);
+  border-radius: var(--sg-radius-md);
+  padding: 18px 20px; margin-bottom: 22px;
+  display: flex; align-items: center; gap: 14px; text-align: left;
+  box-shadow: 0 4px 18px rgba(212,160,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+.sg-badge-celebration-modal__card-icon {
+  font-size: 40px; flex-shrink: 0;
+  animation: bounce-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+}
+.sg-badge-celebration-modal__card-text { flex: 1; }
+.sg-badge-celebration-modal__card-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(122,80,0,0.6); margin-bottom: 3px;
+}
+.sg-badge-celebration-modal__card-value {
+  font-family: var(--sg-font-display); font-size: 18px; color: #7A5000;
+  line-height: 1.2;
+}
+.sg-badge-celebration-modal__card-sub {
+  font-size: 10.5px; font-weight: 700; color: rgba(122,80,0,0.55);
+  margin-top: 3px; line-height: 1.4;
+}
+
+.sg-badge-celebration-modal__actions {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.sg-badge-celebration-modal__btn-primary {
+  width: 100%; height: 52px;
+  font-family: var(--sg-font-display); font-size: 18px; color: #fff;
+  background: linear-gradient(135deg, #D4A000, #F0C040);
+  border: none; border-radius: var(--sg-radius-md); cursor: pointer;
+  box-shadow: 0 6px 22px rgba(212,160,0,0.45), inset 0 1px 0 rgba(255,255,255,0.28);
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease;
+  position: relative; overflow: hidden;
+}
+.sg-badge-celebration-modal__btn-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 55%);
+  pointer-events: none;
+}
+.sg-badge-celebration-modal__btn-primary:hover {
+  transform: translateY(-2px); box-shadow: 0 12px 30px rgba(212,160,0,0.5);
+}
+.sg-badge-celebration-modal__btn-primary:active { transform: translateY(1px); }
+
+.sg-badge-celebration-modal__btn-secondary {
+  width: 100%; height: 46px;
+  font-family: var(--sg-font-body); font-size: 14px; font-weight: 800;
+  color: var(--sg-text-mid);
+  background: rgba(255,255,255,0.8);
+  border: 1.5px solid rgba(212,160,0,0.3);
+  border-radius: var(--sg-radius-md); cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.sg-badge-celebration-modal__btn-secondary:hover {
+  background: rgba(255,255,255,0.98); transform: translateY(-1px);
+}
+.sg-badge-celebration-modal__btn-secondary:active { transform: scale(0.97); }
+
+/* ── V2.11J — Siomai Fan Badge ── */
+.sg-badge-siomai-fan {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 12px;
+  padding: 12px 20px;
+  border-radius: var(--sg-radius-md);
+  width: 100%;
+  transition: opacity 0.3s ease;
+}
+.sg-badge-siomai-fan--locked {
+  background: rgba(74,33,18,0.05);
+  border: 1.5px dashed rgba(74,33,18,0.14);
+  opacity: 0.55;
+}
+.sg-badge-siomai-fan--earned {
+  background: linear-gradient(135deg, #FFF8E8 0%, #FFF0C8 55%, #FFE494 100%);
+  border: 1.5px solid rgba(212,160,0,0.45);
+  box-shadow: 0 4px 18px rgba(212,160,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7);
+  animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.sg-badge-siomai-fan__icon {
+  font-size: 26px; line-height: 1; flex-shrink: 0;
+}
+.sg-badge-siomai-fan__body {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.sg-badge-siomai-fan__title {
+  font-family: var(--sg-font-display); font-size: 15px;
+  color: var(--sg-brown); line-height: 1.1;
+}
+.sg-badge-siomai-fan--earned .sg-badge-siomai-fan__title {
+  color: #7A5000;
+}
+.sg-badge-siomai-fan__sub {
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--sg-text-soft);
+}
+.sg-badge-siomai-fan--earned .sg-badge-siomai-fan__sub {
+  color: rgba(122,80,0,0.65);
+}
+/* Profile inline variant — matches sg-profile-reward-status layout */
+.sg-profile-badge-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 0 2px;
+}
+.sg-profile-badge-slot {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 5px 12px;
+  border-radius: var(--sg-radius-pill);
+}
+.sg-profile-badge-slot--locked {
+  background: rgba(74,33,18,0.07);
+  color: var(--sg-text-soft);
+  border: 1.5px dashed rgba(74,33,18,0.14);
+}
+.sg-profile-badge-slot--earned {
+  background: linear-gradient(135deg, #FFF8E8, #FFE494);
+  color: #7A5000;
+  border: 1.5px solid rgba(212,160,0,0.45);
+}
+
 .sg-dash-footer {
   width:100%; text-align:center; padding-top:28px;
   animation:pop-in 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.38s both;
@@ -3313,6 +3558,12 @@ body {
   color: var(--sg-text-soft); line-height: 1.5;
   max-width: 240px;
 }
+/* V2.11K: Selfie challenge bonus incentive line */
+.sg-selfie-empty__incentive {
+  font-size: 12px; font-weight: 800;
+  color: var(--sg-pink-deep); line-height: 1.5;
+  max-width: 240px;
+}
 
 /* ── Add Selfie button ── */
 .sg-selfie-add-btn {
@@ -3829,7 +4080,7 @@ body {
   </header>
   <div class="sg-dash-welcome" role="region" aria-label="Member welcome">
     <div class="sg-dash-welcome__left">
-      <span class="sg-dash-welcome__greeting">Welcome back</span>
+      <span class="sg-dash-welcome__greeting" id="dashGreeting">Welcome back</span>
       <span class="sg-dash-welcome__name" id="dashName">—</span>
       <span class="sg-dash-welcome__id" id="dashId">—</span>
     </div>
@@ -3984,6 +4235,14 @@ body {
         <div class="sg-reward-ready-banner__sub">Show your QR to staff to redeem your Free Siomai.</div>
       </div>
     </div>
+    <!-- V2.11J: Stamp 4 nudge banner — shown when exactly 1 stamp away from reward -->
+    <div class="sg-reward-ready-banner" id="dashStampNudgeBanner" role="status" aria-live="polite" aria-atomic="true">
+      <span class="sg-reward-ready-banner__icon" aria-hidden="true">🥟</span>
+      <div class="sg-reward-ready-banner__text">
+        <div class="sg-reward-ready-banner__title">Almost there!</div>
+        <div class="sg-reward-ready-banner__sub">One more stamp for your Free Siomai. Come back soon!</div>
+      </div>
+    </div>
 
     <div class="sg-reward-card">
       <div class="sg-reward-card__icon" aria-hidden="true">
@@ -4077,6 +4336,22 @@ body {
     <span aria-hidden="true">🏅</span>
     Share Achievement
   </button>
+
+  <!-- V2.11I: Loyalty Score chip -->
+  <div class="sg-dash-loyalty" aria-label="Your loyalty score">
+    <span class="sg-dash-loyalty__icon" aria-hidden="true">⭐</span>
+    <span class="sg-dash-loyalty__value" id="dashLoyaltyScore">0</span>
+    <span class="sg-dash-loyalty__label">Loyalty Score</span>
+  </div>
+
+  <!-- V2.11J: Siomai Fan Badge -->
+  <div class="sg-badge-siomai-fan sg-badge-siomai-fan--locked" id="dashSiomaiiFanBadge" aria-live="polite">
+    <span class="sg-badge-siomai-fan__icon" aria-hidden="true">🥟</span>
+    <div class="sg-badge-siomai-fan__body">
+      <span class="sg-badge-siomai-fan__title">Siomai Fan</span>
+      <span class="sg-badge-siomai-fan__sub" id="dashSiomaiiFanSub">Loyalty Score 10 to unlock</span>
+    </div>
+  </div>
 
   <div class="sg-dash-footer">
     <p class="sg-dash-footer__tagline">✦ Shumai-Gosh! Rewards ✦</p>
@@ -4279,12 +4554,24 @@ body {
           <span class="sg-profile-row__label">Rewards Claimed</span>
           <span class="sg-profile-row__value sg-profile-row__value--big" id="profileRewardsClaimed">0</span>
         </div>
+        <!-- V2.11I: Loyalty Score display -->
+        <div class="sg-profile-row">
+          <span class="sg-profile-row__label">Loyalty Score</span>
+          <span class="sg-profile-row__value sg-profile-row__value--big" id="profileLoyaltyScore">0</span>
+        </div>
       </div>
       <!-- V2.08D: Reward status indicator -->
       <div class="sg-profile-reward-status" id="profileRewardStatusRow" aria-live="polite" aria-atomic="true">
         <span class="sg-profile-row__label">Reward Status</span>
         <span class="sg-profile-reward-status__badge sg-profile-reward-status__badge--locked" id="profileRewardStateBadge">
           🔒 Locked
+        </span>
+      </div>
+      <!-- V2.11J: Siomai Fan Badge row -->
+      <div class="sg-profile-badge-row" aria-live="polite">
+        <span class="sg-profile-row__label">Loyalty Badge</span>
+        <span class="sg-profile-badge-slot sg-profile-badge-slot--locked" id="profileSiomaiiFanBadge">
+          🥟 Siomai Fan
         </span>
       </div>
     </div>
@@ -5426,11 +5713,78 @@ function showView(id) {
 /* ================================================================
    DASHBOARD POPULATION
    ================================================================ */
+/* ================================================================
+   V2.11I — LOYALTY SCORE ENGINE
+   Pure calculation. No DB read/write. Called dynamically.
+   Formula: (rewardsClaimed × 5) + currentStamps
+   ================================================================ */
+
+/**
+ * calculateLoyaltyScore(customer)
+ * Returns a non-negative integer loyalty score derived entirely
+ * from existing customer fields. Never saved to the database.
+ */
+function calculateLoyaltyScore(customer) {
+  const stamps  = customer.stamps         || 0;
+  const claimed = customer.rewardsClaimed || 0;
+  return (claimed * 5) + stamps;
+}
+
+/**
+ * _renderSiomaiiFanBadge(customer)
+ * V2.11J — Checks loyalty score >= 10 and updates badge
+ * slots on both Dashboard and Profile. Display only — no DB write.
+ */
+function _renderSiomaiiFanBadge(customer) {
+  const score  = calculateLoyaltyScore(customer);
+  const earned = score >= 10;
+
+  /* ── Dashboard badge ── */
+  const dashBadge = document.getElementById('dashSiomaiiFanBadge');
+  const dashSub   = document.getElementById('dashSiomaiiFanSub');
+  if (dashBadge) {
+    dashBadge.classList.toggle('sg-badge-siomai-fan--locked',  !earned);
+    dashBadge.classList.toggle('sg-badge-siomai-fan--earned',   earned);
+    dashBadge.setAttribute('aria-label', earned ? 'Badge earned: Siomai Fan' : 'Badge locked: Siomai Fan');
+  }
+  if (dashSub) {
+    dashSub.textContent = earned
+      ? 'Badge Earned 🎉'
+      : 'Loyalty Score ' + score + ' / 10 to unlock';
+  }
+
+  /* ── Profile badge ── */
+  const profBadge = document.getElementById('profileSiomaiiFanBadge');
+  if (profBadge) {
+    profBadge.classList.toggle('sg-profile-badge-slot--locked',  !earned);
+    profBadge.classList.toggle('sg-profile-badge-slot--earned',   earned);
+    profBadge.textContent = earned ? '🥟 Siomai Fan ✓' : '🥟 Siomai Fan';
+    profBadge.setAttribute('aria-label', earned ? 'Siomai Fan badge earned' : 'Siomai Fan badge locked');
+  }
+}
+
 function populateDashboard(customer) {
   const stamps=customer.stamps||0;
   const rewardStatus=customer.rewardStatus||_deriveRewardStatus(stamps,customer.rewardsClaimed||0);
   document.getElementById('dashName').textContent=customer.fullName;
   document.getElementById('dashId').textContent=customer.customerId;
+  /* V2.11L: Welcome greeting variation by stamp progress */
+  const greetEl = document.getElementById('dashGreeting');
+  if (greetEl) {
+    const claimed = customer.rewardsClaimed || 0;
+    const cyclePos = stamps % 5;
+    if (rewardStatus === 'unlocked') {
+      greetEl.textContent = 'Your reward is waiting! 🎁';
+    } else if (cyclePos === 4) {
+      greetEl.textContent = 'Almost got your reward!';
+    } else if (cyclePos === 3) {
+      greetEl.textContent = "You're more than halfway there!";
+    } else if (claimed > 0 && cyclePos === 1) {
+      greetEl.textContent = 'Starting a new cycle — keep going!';
+    } else {
+      greetEl.textContent = 'Welcome back';
+    }
+  }
   const raw=customer.customerId.replace('SG-','');
   document.getElementById('dashCardId').textContent='SG \u00b7'+raw.slice(0,3)+' \u00b7'+raw.slice(3);
   loadCustomerAvatars(customer);
@@ -5458,6 +5812,13 @@ function populateDashboard(customer) {
   renderDashQR(customer.customerId);
   /* V2.10A: Render selfie challenge section */
   renderSelfieSection(customer);
+  /* V2.11I: Loyalty Score display */
+  const _dashScore = document.getElementById('dashLoyaltyScore');
+  if (_dashScore) _dashScore.textContent = calculateLoyaltyScore(customer);
+  /* V2.11J: Siomai Fan Badge */
+  _renderSiomaiiFanBadge(customer);
+  /* V2.11K: Badge Celebration — fires once when score first hits 10 */
+  _checkAndTriggerBadgeCelebration(customer);
 }
 
 /* ================================================================
@@ -5865,6 +6226,11 @@ function populateProfile(customer) {
       _profBadge.textContent = '🔒 Locked';
     }
   }
+  /* V2.11I: Loyalty Score display */
+  const _profScore = document.getElementById('profileLoyaltyScore');
+  if (_profScore) _profScore.textContent = calculateLoyaltyScore(customer);
+  /* V2.11J: Siomai Fan Badge */
+  _renderSiomaiiFanBadge(customer);
   /* V2.04B: QR is now dashboard-only; profile no longer shows QR */
 }
 
@@ -5920,6 +6286,7 @@ function _buildSelfieEmptyState() {
       <div class="sg-selfie-empty__icon" aria-hidden="true">🤳</div>
       <p class="sg-selfie-empty__title">Take Your Shumai-Gosh Selfie!</p>
       <p class="sg-selfie-empty__sub">Share your Shumai-Gosh moment. Upload a selfie to show off your love for Siomai!</p>
+      <p class="sg-selfie-empty__incentive">📸 Upload a selfie and unlock a <strong>FREE Softdrinks</strong> with your next reward!</p>
     </div>
     <button class="sg-selfie-add-btn" type="button"
       id="sgSelfieAddBtn"
@@ -7729,6 +8096,63 @@ function closeRewardUnlockModal() {
   stopConfetti();
 }
 
+/* ================================================================
+   V2.11K — BADGE CELEBRATION
+   Shown once when Siomai Fan badge is first earned (score >= 10).
+   Seen-flag stored in localStorage per customer — never in Firebase.
+   ================================================================ */
+
+/**
+ * _checkAndTriggerBadgeCelebration(customer)
+ * Called from populateDashboard() after badge render.
+ * Fires the celebration only on the first time the score hits 10+.
+ */
+function _checkAndTriggerBadgeCelebration(customer) {
+  if (!customer || !customer.customerId) return;
+  const score = calculateLoyaltyScore(customer);
+  if (score < 10) return;
+
+  /* Check seen-flag — one per customer ID */
+  const flagKey = 'sg_badge_siomai_fan_seen:' + customer.customerId;
+  try {
+    if (localStorage.getItem(flagKey)) return; /* already celebrated */
+    localStorage.setItem(flagKey, '1');
+  } catch (e) { /* storage unavailable — still show the modal */ }
+
+  showBadgeCelebrationModal();
+}
+
+function showBadgeCelebrationModal() {
+  const overlay = document.getElementById('sgBadgeCelebrationOverlay');
+  if (!overlay) return;
+  overlay.classList.add('is-visible');
+  overlay.setAttribute('aria-hidden', 'false');
+  launchConfetti();
+  /* Focus primary button for accessibility */
+  setTimeout(function() {
+    const btn = overlay.querySelector('.sg-badge-celebration-modal__btn-primary');
+    if (btn) btn.focus();
+  }, 120);
+}
+
+function closeBadgeCelebrationModal() {
+  const overlay = document.getElementById('sgBadgeCelebrationOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('is-visible');
+  overlay.setAttribute('aria-hidden', 'true');
+  stopConfetti();
+}
+
+/* Backdrop click to dismiss */
+document.addEventListener('DOMContentLoaded', function() {
+  const badgeOverlay = document.getElementById('sgBadgeCelebrationOverlay');
+  if (badgeOverlay) {
+    badgeOverlay.addEventListener('click', function(e) {
+      if (e.target === badgeOverlay) closeBadgeCelebrationModal();
+    });
+  }
+});
+
 /* Backdrop click to dismiss */
 document.addEventListener('DOMContentLoaded', function() {
   const overlay = document.getElementById('sgRewardUnlockOverlay');
@@ -7761,6 +8185,13 @@ function _updateRewardNotifications(rewardStatus) {
           : 'Show your QR to staff to redeem your Free Siomai.';
       }
     }
+  }
+  /* V2.11J: Stamp 4 nudge banner — only when 1 stamp away AND reward not already unlocked */
+  const nudge = document.getElementById('dashStampNudgeBanner');
+  if (nudge) {
+    const stamps = customer ? (customer.stamps || 0) : 0;
+    const showNudge = !isUnlocked && (stamps % 5 === 4);
+    nudge.classList.toggle('is-visible', showNudge);
   }
   /* Passport card: Reward Available badge */
   const badge = document.getElementById('dashCardRewardBadge');
@@ -9909,6 +10340,48 @@ function shareToSocialPlatform(platformKey) {
 </div>
 
 <!-- ================================================================
+     V2.11K — BADGE CELEBRATION MODAL
+     Shown once when Siomai Fan badge is first earned.
+     Gold-themed, separate from the pink Reward Unlock modal.
+     ================================================================ -->
+<div class="sg-badge-celebration-overlay" id="sgBadgeCelebrationOverlay"
+  role="dialog" aria-modal="true" aria-labelledby="sgBadgeCelebrationTitle" aria-hidden="true">
+  <div class="sg-badge-celebration-modal">
+    <div class="sg-badge-celebration-modal__awning" aria-hidden="true"></div>
+    <div class="sg-badge-celebration-modal__body">
+      <span class="sg-badge-celebration-modal__burst" aria-hidden="true">🥟</span>
+      <h2 class="sg-badge-celebration-modal__title" id="sgBadgeCelebrationTitle">
+        Congratulations!
+      </h2>
+      <p class="sg-badge-celebration-modal__subtitle">
+        You are now a <strong>Siomai Fan</strong> member.<br>
+        Keep collecting to unlock more rewards!
+      </p>
+      <div class="sg-badge-celebration-modal__card" aria-label="Badge earned">
+        <span class="sg-badge-celebration-modal__card-icon" aria-hidden="true">🥟</span>
+        <div class="sg-badge-celebration-modal__card-text">
+          <div class="sg-badge-celebration-modal__card-label">Badge Unlocked</div>
+          <div class="sg-badge-celebration-modal__card-value">Siomai Fan</div>
+          <div class="sg-badge-celebration-modal__card-sub">Loyalty Score ≥ 10 achieved</div>
+        </div>
+      </div>
+      <div class="sg-badge-celebration-modal__actions">
+        <button class="sg-badge-celebration-modal__btn-primary" type="button"
+          onclick="closeBadgeCelebrationModal()"
+          aria-label="Awesome, close this celebration">
+          🎉 &nbsp;Awesome!
+        </button>
+        <button class="sg-badge-celebration-modal__btn-secondary" type="button"
+          onclick="closeBadgeCelebrationModal()"
+          aria-label="Close badge celebration">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
      V2.11A — SHARE CARD PREVIEW OVERLAY
      Preview only. No export / share / download.
      ================================================================ -->
@@ -9986,6 +10459,26 @@ function shareToSocialPlatform(platformKey) {
       <div class="sg-sharecard-card__stamps" id="sgShareCardStampStrip"
         aria-label="Current stamp progress" aria-live="polite">
         <!-- Populated by openShareCardPreview() -->
+      </div>
+
+      <!-- ================================================================
+           V2.11B — BRAND CTA BLOCK
+           Static marketing section. No logic. No URLs hardcoded.
+           Social handles are placeholder text only — URLs added later.
+           ================================================================ -->
+      <div class="sg-sharecard-card__cta" aria-label="Join the rewards program">
+        <div class="sg-sharecard-card__cta-tagline">
+          🥟 Join the <span class="sg-cta-brand">Shumai-Gosh!</span> Rewards Passport
+        </div>
+        <div class="sg-sharecard-card__cta-sub">
+          Collect Stamps · Earn Rewards · Join Today
+        </div>
+        <div class="sg-sharecard-card__cta-social" aria-label="Find us on social media">
+          <span class="sg-sharecard-card__cta-social-handle">
+            <span class="sg-sharecard-card__cta-social-handle__icon" aria-hidden="true">📘</span>
+            <span>ShumaiGosh</span>
+          </span>
+        </div>
       </div>
 
     </div><!-- /.sg-sharecard-card -->
